@@ -25,7 +25,8 @@
   "dependencies": {
     "antd": "^4.21.2",
     "less": "^3.13.1",
-    "less-loader": "^7.3.0"
+    "less-loader": "^7.3.0",
+    "react-color": "^2.19.3"
   },
   "homepage": "https://github.com/ljinming/core",
   "devDependencies": {

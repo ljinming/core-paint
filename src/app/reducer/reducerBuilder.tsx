@@ -202,7 +202,6 @@ function buildReducerGroup(reducerGroup: GroupType, onReducer?: OnReducerApi) {
       }
     );
   }
-
   return createReducer(handlers, initialState);
 }
 

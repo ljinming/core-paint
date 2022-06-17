@@ -51,7 +51,6 @@ class App implements AppApi {
       initialState,
       sagaMiddleware,
     });
-
     (this.store as any).runSaga = sagaMiddleware.run;
 
     const sagas = sagaBuilder(this.models, {
@@ -59,7 +58,6 @@ class App implements AppApi {
       onFetchOption: this.onFetchOption,
       history: this.history,
     });
-
     sagaMiddleware.run(sagas);
 
     this.history = patchHistory(this.history);

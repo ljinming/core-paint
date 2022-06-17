@@ -14,12 +14,10 @@ const history = [
     url: (payload: any) => {
       return "/api/math/random?count=5";
     },
-    reducer: (state: any, action: any) => {
-      console.log("reducer--------", state, action);
-    },
+    reducer: (state: any, action: any) => {},
   },
 ];
 
-const models = [paint];
+const models = [history, paint];
 
 export default models;
