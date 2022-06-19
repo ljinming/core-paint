@@ -1,49 +1,45 @@
-.core-paint-content{
+.core-paint-content {
+  display: flex;
+
+  &-tool {
+    width: 80px;
+    height: 100%;
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+    .tool-item {
+      position: relative;
+      padding-top: 40px;
+      svg {
+        fill: #a6aeb7;
+      }
+      .bucket-icon {
+        display: block;
+        position: absolute;
+        top: 40px;
+        left: 30px;
+        width: 18px;
+        height: 18px;
+        background-color: #a6aeb7;
+      }
+    }
+    .select {
+      svg {
+        fill: #4338ca;
+      }
+    }
+  }
+  &-canvas {
     display: flex;
-
-
-    &-tool{
-        width: 80px;
-        height: 100%;
-        list-style: none;
-        margin: 0px;
-        padding: 0px;
-        text-align: center;
-        background-color: beige;
-        .tool-item {
-            position: relative;
-            padding-top: 40px;
-           
-             svg {
-                 fill: #a6aeb7;
-             }
-             .bucket-icon {
-                 display: block;
-                  position: absolute;
-                  top: 40px;
-                  left: 30px;
-                 width: 18px;
-                 height: 18px;
-                 background-color: #a6aeb7;
-             }
-        }
-        .select {
-            
-             svg {
-                 fill: #4338ca;
-             }
-
-         }
-
-        
-    }
-    &-canvas{
-        flex: 1;
-    }
-    &-right{
-        width: 300px;
-        height: 100%;
-        background-color:#fff;
-        padding: 40px 20px;
-    }
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: #2d2d2d;
+  }
+  &-right {
+    width: 300px;
+    height: 100%;
+    padding: 40px 20px;
+  }
 }

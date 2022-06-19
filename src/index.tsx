@@ -5,7 +5,7 @@ import { onSuccess } from "@/app/utils/reduxUtils";
 import models from "@/models";
 
 const app = new App({
-  onSuccess,
+  onSuccess
 });
 
 app.setModels(models);

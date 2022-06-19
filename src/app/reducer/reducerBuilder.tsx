@@ -21,10 +21,7 @@ combineReducers 辅助函数的作用是，
 
 */
 
-function reducerBuilder(
-  options: Array<ModelApi | Array<ModelApi>>,
-  onReducer?: OnReducerApi
-): Reducer {
+function reducerBuilder(options: Array<ModelApi | Array<ModelApi>>, onReducer?: OnReducerApi): Reducer {
   const reducers = {};
 
   const reducerGroups = new Map();
@@ -64,10 +61,7 @@ function reducerBuilder(
         reducer.key: ()=>{} // reducer函数
     
     */
-function collectReducers(
-  reducerGroups: Map<string, GroupType>,
-  reducer: ModelApi
-) {
+function collectReducers(reducerGroups: Map<string, GroupType>, reducer: ModelApi) {
   const keys = reducer.key.split(".");
   const [groupKey, ...subKeys] = keys; //eg key ='home.list'
   let group = reducerGroups.get(groupKey);
@@ -102,105 +96,85 @@ function buildReducerGroup(reducerGroup: GroupType, onReducer?: OnReducerApi) {
   for (const reducer of reducerGroup.values()) {
     // values() 返回一个遍历器对象，用来遍历所有的键值。
     //delete
-    // if (!isStateLegal(initialState, reducer)) {
-    //   throw new Error(
-    //     `Build ${reducer.key} state failure. Check if ${reducer.key}'s key or
-    //             initialState is duplicate in it's father state`
-    //   );
-    // }
+    if (!isStateLegal(initialState, reducer)) {
+      throw new Error(
+        `Build ${reducer.key} state failure. Check if ${reducer.key}'s key or
+                initialState is duplicate in it's father state`
+      );
+    }
 
     if (reducer.single) {
       initialState = reducer.initialState || {};
     } else {
-      buildState(
-        initialState,
-        reducer.subKeys as string[],
-        reducer.initialState
-      );
+      buildState(initialState, reducer.subKeys as string[], reducer.initialState);
     }
 
     // 使用key 作为action.type
     const action = reducer.key;
 
     // action 可能需异步处理，注入不同的状态处理函数
-    handlers[action] = createReducerHandler(
-      reducer,
-      "reducer",
-      (state, action) => {
-        const { payload, ...other } = action;
-        let newState = {
-          ...payload,
-          ...other,
-        };
-        delete newState.type;
-        if (onReducer) {
-          onReducer = onReducer(newState, state, action, "reducer");
-        }
-        return newState;
+    handlers[action] = createReducerHandler(reducer, "reducer", (state, action) => {
+      const { payload, ...other } = action;
+      let newState = {
+        ...payload,
+        ...other
+      };
+      delete newState.type;
+      if (onReducer) {
+        onReducer = onReducer(newState, state, action, "reducer");
       }
-    );
+      return newState;
+    });
 
-    handlers[`${action}_LOADING`] = createReducerHandler(
-      reducer,
-      "loading",
-      (state, action) => {
-        const { payload, ...other } = action;
-        let newState = {
-          result: null,
-          payload,
-          success: false,
-          loading: true,
-          ...other,
-        };
-        delete newState.type;
-        if (onReducer) {
-          onReducer = onReducer(newState, state, action, "reducer");
-        }
-        return newState;
+    handlers[`${action}_LOADING`] = createReducerHandler(reducer, "loading", (state, action) => {
+      const { payload, ...other } = action;
+      let newState = {
+        result: null,
+        payload,
+        success: false,
+        loading: true,
+        ...other
+      };
+      delete newState.type;
+      if (onReducer) {
+        onReducer = onReducer(newState, state, action, "reducer");
       }
-    );
+      return newState;
+    });
 
-    handlers[`${action}__SUCCESS`] = createReducerHandler(
-      reducer,
-      "success",
-      (state: any, action: any) => {
-        const { done, result, payload, ...other } = action;
-        let newState = {
-          result,
-          payload,
-          success: true,
-          loading: false,
-          ...other,
-        };
+    handlers[`${action}__SUCCESS`] = createReducerHandler(reducer, "success", (state: any, action: any) => {
+      const { done, result, payload, ...other } = action;
+      let newState = {
+        result,
+        payload,
+        success: true,
+        loading: false,
+        ...other
+      };
 
-        delete newState.type;
-        if (onReducer) {
-          newState = onReducer(newState, state, action, "success");
-        }
-        return newState;
+      delete newState.type;
+      if (onReducer) {
+        newState = onReducer(newState, state, action, "success");
       }
-    );
+      return newState;
+    });
 
-    handlers[`${action}__FAILURE`] = createReducerHandler(
-      reducer,
-      "failure",
-      (state: any, action: any) => {
-        const { payload, error, ...other } = action;
-        let newState = {
-          payload,
-          error,
-          success: false,
-          loading: false,
-          ...other,
-        };
+    handlers[`${action}__FAILURE`] = createReducerHandler(reducer, "failure", (state: any, action: any) => {
+      const { payload, error, ...other } = action;
+      let newState = {
+        payload,
+        error,
+        success: false,
+        loading: false,
+        ...other
+      };
 
-        delete newState.type;
-        if (onReducer) {
-          newState = onReducer(newState, state, action, "failure");
-        }
-        return newState;
+      delete newState.type;
+      if (onReducer) {
+        newState = onReducer(newState, state, action, "failure");
       }
-    );
+      return newState;
+    });
   }
   return createReducer(handlers, initialState);
 }
@@ -212,19 +186,10 @@ function buildReducerGroup(reducerGroup: GroupType, onReducer?: OnReducerApi) {
  * @param handler
  */
 
-function createReducerHandler(
-  reducer: ModelApi,
-  method: string,
-  handler: (state: any, action: any) => any
-) {
+function createReducerHandler(reducer: ModelApi, method: string, handler: (state: any, action: any) => any) {
   return (state: any, action: any) => {
     let result;
-    if (
-      reducer.url &&
-      !["SUCCESS,LOADING,FAILURE"].some((status) =>
-        action.type.includes(status)
-      )
-    ) {
+    if (reducer.url && !["SUCCESS,LOADING,FAILURE"].some((status) => action.type.includes(status))) {
       return state;
     }
 
@@ -255,11 +220,7 @@ function createReducerHandler(
  * @param keys
  * @param subState
  */
-function buildState(
-  groupState: object,
-  keys: Array<string>,
-  subState = {}
-): void {
+function buildState(groupState: object, keys: Array<string>, subState = {}): void {
   const length = keys.length;
   if (length === 1) {
     groupState[keys[0]] = subState;

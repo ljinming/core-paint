@@ -5,8 +5,8 @@ const history = [
     key: "history.curve",
     method: "post",
     initialState: {
-      bondName: "1",
-    },
+      bondName: "1"
+    }
   },
   {
     key: "history.balance",
@@ -14,10 +14,10 @@ const history = [
     url: (payload: any) => {
       return "/api/math/random?count=5";
     },
-    reducer: (state: any, action: any) => {},
-  },
+    reducer: (state: any, action: any) => {}
+  }
 ];
 
-const models = [history, paint];
+const models = [paint];
 
 export default models;

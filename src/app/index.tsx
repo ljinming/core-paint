@@ -2,13 +2,7 @@ import ReactDom, { render } from "react-dom";
 import { createBrowserHistory, History, createHashHistory } from "history";
 import { isHTMLElement } from "@/app/utils/isType";
 import createSagaMiddleware from "redux-saga";
-import {
-  AppOptions,
-  HistoryType,
-  AppApi,
-  ModelApi,
-  OnReducerApi,
-} from "./types";
+import { AppOptions, HistoryType, AppApi, ModelApi, OnReducerApi } from "./types";
 import reducerBuilder from "./reducer/reducerBuilder";
 import sagaBuilder from "./reducer/sagaBuilder";
 import createStore from "./reducer/createStore";
@@ -49,14 +43,14 @@ class App implements AppApi {
     this.store = createStore({
       reducers,
       initialState,
-      sagaMiddleware,
+      sagaMiddleware
     });
     (this.store as any).runSaga = sagaMiddleware.run;
 
     const sagas = sagaBuilder(this.models, {
       onSuccess: this.onSuccess,
       onFetchOption: this.onFetchOption,
-      history: this.history,
+      history: this.history
     });
     sagaMiddleware.run(sagas);
 

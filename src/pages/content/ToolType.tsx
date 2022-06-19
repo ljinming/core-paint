@@ -18,13 +18,11 @@ const ToolType = (props: ToolProps) => {
         return (
           <li
             title={va.title}
-            className={`${
-              select === va.key ? "tool-item select" : "tool-item"
-            }`}
+            className={`${select === va.key ? "tool-item select" : "tool-item"}`}
             key={va.key}
             onClick={() => {
               Action.emit("paint.Tool", {
-                select: va.key,
+                select: va.key
               });
             }}
           >

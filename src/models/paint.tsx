@@ -1,22 +1,24 @@
-import Pencil from "@/pages/content/Pencil";
+import { PaintState, PencilState } from "./type";
 
 export const paint = [
   {
-    key: "paint.Tool",
+    key: "paint.tool",
     initialState: {
-      select: "PEN",
-    },
+      select: "PEN"
+    }
   },
   {
     key: "paint.pencil",
     initialState: {
       fontSize: 5,
-      color: "#000",
+      color: "#000"
     },
-    reducer: (state: any, action: any) => {
+    reducer: (state: PaintState, action: any) => {
       const lastState = state.pencil;
       const { payload = {} } = action;
       return { ...lastState, ...payload };
-    },
-  },
+    }
+  }
 ];
+
+// paint.tool = 55
