@@ -9,6 +9,7 @@ interface ColorProps {
 
 export default (props: ColorProps) => {
   const { color, onChange } = props;
+
   const handleChange = (color: any, event: any) => {
     onChange(color.hex);
   };

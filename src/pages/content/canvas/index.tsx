@@ -1,54 +1,57 @@
-import React, { useEffect, useRef, useState } from "react";
+import { Board } from "@/board";
 import { fabric } from "fabric";
-import "./index.less";
-import { initBruch } from "./utils";
+import { useEffect, useRef } from "react";
 
 interface CanvasProps {
+  board: Board;
+  backgroundColor?: string;
   canvasSize: {
     width: number;
     height: number;
   };
-  backgroundColor: string;
-  select: string;
+  tool: string;
+  id?: string;
 }
-
-function FabricJSCanvas(props: CanvasProps) {
-  const { canvasSize, backgroundColor, select } = props;
-  const canvasEl = useRef(null);
-  //let canvas: fabric.Canvas;
-  useEffect(() => {
-    let canvas = new fabric.Canvas(canvasEl.current);
-    //new updateCanvasContext(canvas);
-    canvas.fill = backgroundColor || "#fff";
-    //canvas.width = canvasSize.width || 500;
-    // canvas.height = canvasSize.height || 500;
-    console.log("===4", canvas);
-    // canvas.renderAll();
-    //updateCanvasContext(canvas);
-    return () => {
-      //updateCanvasContext(canvas);
-      canvas.dispose();
-    };
-  }, [backgroundColor]);
+export default (props: CanvasProps) => {
+  const canvasRef = useRef(null);
+  const { canvasSize, backgroundColor, tool, id, board } = props;
 
   useEffect(() => {
-    // console.log("=====4", select, canvas);
-    switch (select) {
+    board.init(
+      new fabric.Canvas(canvasRef.current, {
+        width: 500, // 画布宽度
+        height: 500, // 画布高度
+        backgroundColor: backgroundColor, // 画布背景色
+        isDrawingMode: false
+      }),
+      canvasRef.current
+    );
+    // board.addEventListener();
+
+    // board.initCanvasEvent();
+  }, []);
+
+  useEffect(() => {
+    switch (tool) {
       case "PEN":
-        //initBruch(canvas);
+        board.setIsDrawingMode(true);
+        board.showPen();
+        break;
+      case "SHAPE":
+        board.setIsDrawingMode(false);
+        board.setShape({ shapeType: "line" });
+
         break;
     }
-  }, [select]);
+  }, [tool]);
 
   return (
     <canvas
-      ref={canvasEl}
-      style={{ backgroundColor }}
-      className="canvasBox"
-      width={canvasSize.width}
-      height={canvasSize.height}
-    />
+      ref={canvasRef}
+      //  style={{ backgroundColor: "#fff" }}
+      id={`ccc-paint-canvas ${id}`}
+      width={canvasSize.width || 500}
+      height={canvasSize.height || 500}
+    ></canvas>
   );
-}
-
-export default FabricJSCanvas;
+};

@@ -2,13 +2,13 @@ import { connect, useSelector, shallowEqual } from "react-redux";
 import ToolType from "./ToolType";
 import "./index.less";
 import FabricJSCanvas from "./canvas";
+import { RootState } from "@/models/type";
+import Board from "@/board";
 import Pencil from "./Pencil";
-import { RootState, PencilState } from "@/models/type";
-
+import Shape from "./Shape";
 interface ContentProps {
   pre: string;
-  select: string;
-  pencil: PencilState;
+  tool: string;
   backgroundColor: string;
   canvasSize: {
     width: number;
@@ -17,20 +17,23 @@ interface ContentProps {
 }
 
 const Content = (props: ContentProps) => {
-  const { pre, select, pencil, backgroundColor, canvasSize } = props;
-  // useSelector((state: any) => {
-  //   console.log("====3", state);
+  const { pre, tool, backgroundColor, canvasSize } = props;
 
+  // const tool = useSelector((state: RootState) => {
+  //   console.log("select---", state);
   //   return {
-  //     select: state.paint.Tool?.select
+  //     tool: state.paint.tool.select
   //   };
-  // });
+  // }, shallowEqual);
 
+  console.log("==", tool);
   const renderRight = () => {
     let right = <>test</>;
-    switch (select) {
+    switch (tool) {
       case "PEN":
-        return <Pencil option={{ ...pencil }} />;
+        return <Pencil board={Board} />;
+      case "SHAPE":
+        return <Shape board={Board} />;
       default:
         break;
     }
@@ -39,9 +42,9 @@ const Content = (props: ContentProps) => {
 
   return (
     <div className={`${pre}-content`}>
-      <ToolType prefix={`${pre}-content`} select={select} />
+      <ToolType prefix={`${pre}-content`} select={tool} />
       <div className={`${pre}-content-canvas`}>
-        <FabricJSCanvas canvasSize={canvasSize} backgroundColor={backgroundColor} select={select} />
+        <FabricJSCanvas canvasSize={canvasSize} tool={tool} board={Board} backgroundColor={backgroundColor} />
       </div>
       <div className={`${pre}-content-right`}>{renderRight()}</div>
     </div>
@@ -49,9 +52,9 @@ const Content = (props: ContentProps) => {
 };
 
 function mapStateToProps(state: RootState) {
+  console.log("=====", state);
   return {
-    select: state.paint.tool.select,
-    pencil: state.paint.pencil
+    tool: state.paint.tool.select
   };
 }
 

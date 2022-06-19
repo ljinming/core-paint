@@ -1,7 +1,6 @@
 import { ToolTypeList } from "@/pages/utils";
 import { getToolIcon } from "@/pages/utils/tool";
 import { toolItem } from "@/pages/utils/tsType";
-import { connect, useStore } from "react-redux";
 import Action from "@/action";
 
 interface ToolProps {
@@ -21,7 +20,7 @@ const ToolType = (props: ToolProps) => {
             className={`${select === va.key ? "tool-item select" : "tool-item"}`}
             key={va.key}
             onClick={() => {
-              Action.emit("paint.Tool", {
+              Action.emit("paint.tool", {
                 select: va.key
               });
             }}
