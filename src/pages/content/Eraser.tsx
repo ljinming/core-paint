@@ -1,14 +1,12 @@
 import Sider from "@/components/sliderCard";
-import Action from "@/action";
-import { connect, shallowEqual, useSelector } from "react-redux";
-import ColorPicker from "@/components/colorPicker";
+// import ColorPicker from "@/components/colorPicker";
 import { Board } from "@/board";
 
-interface pencilProps {
+interface EraserProps {
   board: Board;
 }
 
-const Pencil = (props: pencilProps) => {
+const Pencil = (props: EraserProps) => {
   const { board } = props;
 
   const handleChange = (type: string, value: number | string) => {
@@ -18,11 +16,11 @@ const Pencil = (props: pencilProps) => {
   return (
     <>
       <Sider
-        title="Brush thickness"
+        title="Eraser Thickness"
         options={{ max: 20, min: 1 }}
         onChange={(value: number) => handleChange("lineWidth", value)}
       />
-      <ColorPicker onChange={(color: string) => handleChange("color", color)} />
+      {/* <ColorPicker onChange={(color: string) => handleChange("color", color)} /> */}
     </>
   );
 };

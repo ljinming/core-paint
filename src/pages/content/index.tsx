@@ -6,10 +6,12 @@ import { RootState } from "@/models/type";
 import Board from "@/board";
 import Pencil from "./Pencil";
 import Shape from "./Shape";
+import Eraser from "./Eraser";
 interface ContentProps {
   pre: string;
   tool: string;
   backgroundColor: string;
+  imgSrc?: string;
   canvasSize: {
     width: number;
     height: number;
@@ -17,7 +19,7 @@ interface ContentProps {
 }
 
 const Content = (props: ContentProps) => {
-  const { pre, tool, backgroundColor, canvasSize } = props;
+  const { pre, tool, imgSrc, backgroundColor, canvasSize } = props;
 
   // const tool = useSelector((state: RootState) => {
   //   console.log("select---", state);
@@ -34,6 +36,9 @@ const Content = (props: ContentProps) => {
         return <Pencil board={Board} />;
       case "SHAPE":
         return <Shape board={Board} />;
+      case "ERASER":
+        return <Eraser board={Board} />;
+
       default:
         break;
     }
@@ -44,7 +49,13 @@ const Content = (props: ContentProps) => {
     <div className={`${pre}-content`}>
       <ToolType prefix={`${pre}-content`} select={tool} />
       <div className={`${pre}-content-canvas`}>
-        <FabricJSCanvas canvasSize={canvasSize} tool={tool} board={Board} backgroundColor={backgroundColor} />
+        <FabricJSCanvas
+          canvasSize={canvasSize}
+          tool={tool}
+          imgSrc={imgSrc}
+          board={Board}
+          backgroundColor={backgroundColor}
+        />
       </div>
       <div className={`${pre}-content-right`}>{renderRight()}</div>
     </div>
@@ -54,7 +65,7 @@ const Content = (props: ContentProps) => {
 function mapStateToProps(state: RootState) {
   console.log("=====", state);
   return {
-    tool: state.paint.tool.select
+    tool: state.paint.tool.select,
   };
 }
 

@@ -4,15 +4,15 @@ export const paint = [
   {
     key: "paint.tool",
     initialState: {
-      select: "PEN"
+      select: "PEN",
     },
     reducer: (state: PaintState, action: any) => {
       const lastState = state.tool;
       console.log("=lastState=", lastState);
       const { payload = {} } = action;
       return { ...lastState, ...payload };
-    }
-  }
+    },
+  },
   // {
   //   key: "paint.pencil",
   //   initialState: {
