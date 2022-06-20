@@ -26,6 +26,7 @@ export class Board {
   textObject: any;
   fontSize: any;
   imgUrl: string;
+  canvasCurren: HTMLCanvasElement;
   constructor(initial: InitialProps) {
     this.tool = initial.tool;
     this.canvas = null;
@@ -66,7 +67,7 @@ export class Board {
     this._offset.left = canvasCurren.getBoundingClientRect().left;
     this._offset.top = canvasCurren.getBoundingClientRect().top;
     this.stateArr.push(JSON.stringify(this.canvas));
-    this.ctx = canvasCurren.getContext("2d");
+    this.canvasCurren = canvasCurren;
     this.imgUrl = imgUrl;
     this.stateIdx = 0;
     if (imgUrl) {
@@ -75,11 +76,12 @@ export class Board {
         (img) => {
           img.scale(0.5);
           img.selectable = false;
-          canvas.setBackgroundImage(img).renderAll();
+          this.canvas.add(img).renderAll();
         },
         { crossOrigin: "anonymous" }
       );
     }
+
     this.addEventListener();
     //this.canvas.overlayColor = backgroundColor;
   }
@@ -152,6 +154,8 @@ export class Board {
   canvasMouseDown = (options) => {
     // 记录当前鼠标的起点坐标 (减去画布在 x y轴的偏移，因为画布左上角坐标不一定在浏览器的窗口左上角)
     console.log("==5", options, options.e.clientX - this.canvas._offset.left);
+    console.log("==3", this.canvas);
+
     this.mouseFrom.x = options.e.clientX - this.canvas._offset.left; //options.e.clientX - this._offset.left;
     this.mouseFrom.y = options.e.clientY - this._offset.top;
     this.mouseDown = true;
@@ -170,10 +174,11 @@ export class Board {
   };
 
   getPixelColorOnCanvas = (): void => {
+    const ctx = this.canvas.getContext("2d");
     const x = this.getTransformedPosX(this.mouseFrom.x);
     const y = this.getTransformedPosY(this.mouseFrom.y);
-    const p = this.ctx.getImageData(x, y, 1, 1).data;
-    console.log("=p==5", p);
+    const p = ctx.getImageData(x, y, 5, 5).data;
+    console.log("=p==5", x, y, this.mouseFrom.x, this.mouseFrom.y, p);
     this.eraserColor = rgbToHex(p[0], p[1], p[2], p[3]);
     console.log("==5", this.eraserColor);
     this.showBrush();

@@ -17,7 +17,6 @@ export default (props: CanvasProps) => {
   const canvasRef = useRef(null);
   const { canvasSize, imgSrc, backgroundColor, tool, id, board } = props;
   useEffect(() => {
-    console.log("==3", canvasSize, imgSrc);
     board.init(
       new fabric.Canvas(canvasRef.current, {
         width: 500, // 画布宽度
