@@ -27,7 +27,7 @@ export class Board {
   eraserColor: string;
   textObject: any;
   imgUrl: string;
-  canvasCurren: HTMLCanvasElement;
+  canvasDom: HTMLCanvasElement;
   textStyle: {
     letterSpacing?: number | string;
   };
@@ -57,33 +57,28 @@ export class Board {
     this.fillColor = "";
     this._offset = {
       left: 0,
-      top: 0,
+      top: 0
     };
     this.mouseFrom = {
       x: 0,
-      y: 0,
+      y: 0
     };
     this.points = {
       x: 0,
-      y: 0,
+      y: 0
     };
     this.mouseTo = {
       x: 0,
-      y: 0,
+      y: 0
     };
   }
 
-  init(
-    canvas: fabric.Canvas,
-    canvasCurren: HTMLCanvasElement,
-    imgUrl?: string,
-    other?: any
-  ) {
+  init(canvas: fabric.Canvas, canvasDom: HTMLCanvasElement, imgUrl?: string, other?: any) {
     this.canvas = canvas;
-    this._offset.left = canvasCurren.getBoundingClientRect().left;
-    this._offset.top = canvasCurren.getBoundingClientRect().top;
+    this._offset.left = canvasDom.getBoundingClientRect().left;
+    this._offset.top = canvasDom.getBoundingClientRect().top;
     this.stateArr.push(JSON.stringify(this.canvas));
-    this.canvasCurren = canvasCurren;
+    this.canvasDom = canvasDom;
     this.imgUrl = imgUrl;
     this.stateIdx = 0;
     if (imgUrl) {
@@ -129,9 +124,7 @@ export class Board {
     this.canvas.on("selection:cleared", (options) => {
       this.selected = false;
     });
-    this.canvas.on("mouse:wheel", this.canvasMouseWheel.bind(this), {
-      passive: false,
-    });
+    this.canvas.on("mouse:wheel", this.canvasMouseWheel);
     this.canvas.on("after:render", this.canvasAfterRender.bind(this));
   };
 
@@ -161,7 +154,7 @@ export class Board {
         {
           // 关键点
           x: options.e.offsetX,
-          y: options.e.offsetY,
+          y: options.e.offsetY
         },
         zoom // 传入修改后的缩放级别
       );
@@ -171,7 +164,6 @@ export class Board {
   canvasMouseUp = (options) => {
     const ev = options.e;
     //ev.preventDefault();
-    console.log("up===4", options, this.tool);
     if (!this.selected && this.tool === "SHAPE") {
       // 记录当前鼠标移动终点坐标 (减去画布在 x y轴的偏移，因为画布左上角坐标不一定在浏览器的窗口左上角)
       this.mouseTo.x = options.pointer.x;
@@ -186,9 +178,8 @@ export class Board {
 
   canvasMouseDown = (options) => {
     // 记录当前鼠标的起点坐标 (减去画布在 x y轴的偏移，因为画布左上角坐标不一定在浏览器的窗口左上角)
-    this.mouseFrom.x = options.e.clientX - this.canvas._offset.left; //options.e.clientX - this._offset.left;
+    this.mouseFrom.x = options.e.clientX - this._offset.left; //options.e.clientX - this._offset.left;
     this.mouseFrom.y = options.e.clientY - this._offset.top;
-    console.log("=====down", options, this.tool);
     this.points.x = options.pointer.x;
     this.points.y = options.pointer.y;
     this.mouseDown = true;
@@ -203,7 +194,7 @@ export class Board {
     // 判断是否已经到了最后一步操作
     if (stateIdx >= this.stateArr.length) return;
     if (this.stateArr[stateIdx]) {
-      this.canvas.loadFromJSON(this.stateArr[stateIdx]);
+      this.canvas.loadFromJSON(this.stateArr[stateIdx], () => {});
       if (this.canvas.getObjects().length > 0) {
         this.canvas.getObjects().forEach((item) => {
           item.set("selectable", false);
@@ -238,7 +229,7 @@ export class Board {
   };
 
   getPixelColorOnCanvas = (): void => {
-    const ctx = this.canvas.contextContainer as CanvasRenderingContext2D;
+    const ctx = this.canvas.getContext();
     const x = this.getTransformedPosX(this.mouseFrom.x);
     const y = this.getTransformedPosY(this.mouseFrom.y);
     const p = ctx.getImageData(x, y, 1, 1).data;
@@ -251,14 +242,8 @@ export class Board {
     const y = this.getTransformedPosY(this.mouseFrom.y);
     if (this.fillColor) {
       const color = new Color(this.fillColor);
-      console.log("drawBucket===3", x, y, this.points, color);
-      const newImageData = efficentFloodFill(
-        this.canvas.contextContainer as CanvasRenderingContext2D,
-        x,
-        y,
-        [color.red(), color.green(), color.blue()]
-      );
-      console.log("====", newImageData, this.canvas);
+      const ctx = this.canvas.getContext();
+      const newImageData = efficentFloodFill(ctx, x, y, [color.red(), color.green(), color.blue()]);
       if (newImageData) {
         this.showImg(newImageData);
 
@@ -269,15 +254,30 @@ export class Board {
 
   showImg = async (newImageData) => {
     if (newImageData) {
-      this.canvas.contextContainer.drawImage(
-        await createImageBitmap(newImageData),
-        0,
-        0,
-        this.canvas.width,
-        this.canvas
-      );
+      // console.log("newImageData", newImageData);
+      const imgSrc = this.canvas.toDataURL(newImageData);
+      if (imgSrc) {
+        fabric.Image.fromURL(
+          imgSrc,
+          (img) => {
+            //img.scale(showScale);
+            img.selectable = false;
+            this.canvas.add(img).renderAll();
+          },
+          { crossOrigin: "anonymous" }
+        );
+      }
 
-      //this.canvas.contextContainer.putImageData(newImageData, 0, 0);
+      // this.canvas.contextContainer.drawImage(
+      //   await createImageBitmap(newImageData),
+      //   0,
+      //   0,
+      //   this.canvas.width,
+      //   this.canvas
+      // );
+
+      //this.canvas.getContext().putImageData(newImageData, 0, 0);
+      //this.canvas.renderAll();
     }
   };
 
@@ -322,7 +322,6 @@ export class Board {
   }
 
   showShape() {
-    console.log("++++++==", this.shapeType, this.shapeLine);
     switch (this.shapeType) {
       case "RECT":
         // 创建一个矩形对象
@@ -340,7 +339,7 @@ export class Board {
           strokeDashArray: [0, 0],
           stroke: this.strokeColor,
           fill: "transparent",
-          strokeWidth: 1,
+          strokeWidth: 1
         };
         if (this.shapeLine === "DOTTED") {
           options.strokeDashArray = [3, 3];
@@ -355,13 +354,13 @@ export class Board {
             this.getTransformedPosX(this.mouseFrom.x),
             this.getTransformedPosY(this.mouseFrom.y),
             this.getTransformedPosX(this.mouseTo.x),
-            this.getTransformedPosY(this.mouseTo.y),
+            this.getTransformedPosY(this.mouseTo.y)
           ],
           {
             fill: this.strokeColor,
             stroke: this.strokeColor,
             strokeWidth: 1,
-            strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
+            strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null
           }
         );
         this.startDrawingObject(line);
@@ -385,7 +384,7 @@ export class Board {
           fill: "transparent",
           radius: radius,
           strokeWidth: 1,
-          strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
+          strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null
         });
         this.startDrawingObject(canvasObject);
         break;
@@ -393,9 +392,7 @@ export class Board {
         let left_TRIANGLE = this.mouseFrom.x;
         let top_TRIANGLE = this.mouseFrom.y;
         let height_TRIANGLE = this.mouseTo.y - this.mouseFrom.y;
-        let width_TRIANGLE = Math.sqrt(
-          Math.pow(height_TRIANGLE, 2) + Math.pow(height_TRIANGLE / 2.0, 2)
-        );
+        let width_TRIANGLE = Math.sqrt(Math.pow(height_TRIANGLE, 2) + Math.pow(height_TRIANGLE / 2.0, 2));
         let TRIANGLE = new fabric.Triangle({
           left: left_TRIANGLE,
           top: top_TRIANGLE,
@@ -404,7 +401,7 @@ export class Board {
           stroke: this.strokeColor,
           fill: "transparent",
           strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
-          strokeWidth: 1,
+          strokeWidth: 1
         });
         this.startDrawingObject(TRIANGLE);
 
@@ -423,10 +420,10 @@ export class Board {
         hasControls: true,
         editable: true,
         width: 200,
-        heigh: 50,
+        // heigh: 50,
         backgroundColor: "#fff",
         selectable: false,
-        ...this.textStyle,
+        ...this.textStyle
       });
       // if (this.textStyle.letterSpacing) {
       //   this.canvas.contextTop.canvas.setAttribute(
@@ -476,5 +473,5 @@ export class Board {
 }
 
 export default new Board({
-  tool: "PEN",
+  tool: "PEN"
 });
