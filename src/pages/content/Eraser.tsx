@@ -6,7 +6,7 @@ interface EraserProps {
   board: Board;
 }
 
-const Pencil = (props: EraserProps) => {
+const Eraser = (props: EraserProps) => {
   const { board } = props;
 
   const handleChange = (type: string, value: number | string) => {
@@ -25,4 +25,4 @@ const Pencil = (props: EraserProps) => {
   );
 };
 
-export default Pencil;
+export default Eraser;

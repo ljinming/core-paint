@@ -6,10 +6,11 @@ import Action from "@/action";
 interface ToolProps {
   prefix: string;
   select?: string;
+  color: string;
 }
 
 const ToolType = (props: ToolProps) => {
-  const { prefix, select } = props;
+  const { prefix, select, color } = props;
 
   return (
     <ul className={`${prefix}-tool`}>
@@ -17,16 +18,25 @@ const ToolType = (props: ToolProps) => {
         return (
           <li
             title={va.title}
-            className={`${select === va.key ? "tool-item select" : "tool-item"}`}
+            className={`${
+              select === va.key ? "tool-item select" : "tool-item"
+            }`}
             key={va.key}
             onClick={() => {
               Action.emit("paint.tool", {
-                select: va.key
+                select: va.key,
               });
             }}
           >
-            {getToolIcon(va.icon)}
-            {va.key === "Bucket" && <span className="bucket-icon" />}
+            <span style={{ position: "relative", display: "inline-block" }}>
+              {getToolIcon(va.icon)}
+              {va.key === "BUCKET" && (
+                <span
+                  className="bucket-icon"
+                  style={{ backgroundColor: color }}
+                />
+              )}
+            </span>
           </li>
         );
       })}

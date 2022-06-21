@@ -1,6 +1,4 @@
 import Sider from "@/components/sliderCard";
-import Action from "@/action";
-import { connect, shallowEqual, useSelector } from "react-redux";
 import ColorPicker from "@/components/colorPicker";
 import { Board } from "@/board";
 

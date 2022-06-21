@@ -18,7 +18,7 @@ interface pencilProps {
   board: Board;
 }
 
-const Pencil = (props: pencilProps) => {
+const Shape = (props: pencilProps) => {
   const { board } = props;
 
   const handleChange = (type: string, value: number | string) => {
@@ -92,8 +92,8 @@ const Pencil = (props: pencilProps) => {
       <h3>Shape</h3>
       <Select
         style={{ width: "100%" }}
-        value={"SOLID"}
-        //onChange={(value) => shapeOutlineContext.setType(value as ShapeOutlineType)}
+        defaultValue={"SOLID"}
+        onChange={(value) => (board.shapeLine = value)}
       >
         <Select.Option value={"SOLID"}>solid line</Select.Option>
         <Select.Option value={"DOTTED"}>dotted line</Select.Option>
@@ -116,4 +116,4 @@ const Pencil = (props: pencilProps) => {
   );
 };
 
-export default Pencil;
+export default Shape;

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SketchPicker } from "react-color";
 
 import "./index.less";
@@ -9,8 +10,10 @@ interface ColorProps {
 
 export default (props: ColorProps) => {
   const { color, onChange } = props;
+  const [showColor, setColor] = useState(color || "");
 
   const handleChange = (color: any, event: any) => {
+    setColor(color.hex);
     onChange(color.hex);
   };
 
@@ -21,7 +24,7 @@ export default (props: ColorProps) => {
         className="colorBox-picker"
         width="100%"
         disableAlpha={false}
-        color={color}
+        color={showColor}
         onChange={handleChange}
       />
     </div>

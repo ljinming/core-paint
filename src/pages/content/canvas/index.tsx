@@ -43,7 +43,7 @@ export default (props: CanvasProps) => {
         board.setIsDrawingMode(false);
         break;
       case "ERASER":
-        board.showBrush();
+      // board.showBrush();
     }
   }, [tool]);
 

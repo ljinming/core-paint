@@ -1,6 +1,8 @@
 import { fabric } from "fabric";
 import "fabric/src/mixins/eraser_brush.mixin";
-import { rgbToHex } from "./utils";
+import { efficentFloodFill, rgbToHex } from "./utils";
+import Color from "color";
+
 interface InitialProps {
   tool: string;
 }
@@ -24,9 +26,16 @@ export class Board {
   ctx: CanvasRenderingContext2D;
   eraserColor: string;
   textObject: any;
-  fontSize: any;
   imgUrl: string;
   canvasCurren: HTMLCanvasElement;
+  textStyle: {
+    letterSpacing?: number | string;
+  };
+  fillColor: string;
+  points: {
+    x: number;
+    y: number;
+  };
   constructor(initial: InitialProps) {
     this.tool = initial.tool;
     this.canvas = null;
@@ -43,12 +52,17 @@ export class Board {
     this.ctx = null;
     this.eraserColor = "#fff";
     this.selected = false; //记录绘画是否被选中
-    this.fontSize = 10; // text fontsize
+    this.textStyle = {};
+    this.fillColor = "";
     this._offset = {
       left: 0,
       top: 0,
     };
     this.mouseFrom = {
+      x: 0,
+      y: 0,
+    };
+    this.points = {
       x: 0,
       y: 0,
     };
@@ -93,6 +107,10 @@ export class Board {
     this.tool = tool;
   };
 
+  setTextStyle = (type: string, value: string | number) => {
+    this.textStyle = { ...this.textStyle, [type]: value };
+  };
+
   addEventListener = () => {
     // 监听鼠标按下事件
     this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
@@ -107,11 +125,14 @@ export class Board {
     this.canvas.on("selection:cleared", (options) => {
       this.selected = false;
     });
-    this.canvas.on("mouse:wheel", this.canvasMouseWheel.bind(this));
+    this.canvas.on("mouse:wheel", this.canvasMouseWheel.bind(this), {
+      passive: false,
+    });
   };
 
   canvasMouseWheel = (options) => {
     const delta = options.e.deltaY; // 滚轮，向上滚一下是 -100，向下滚一下是 100
+    options.e.preventDefault();
     if (this.imgUrl) {
       let zoom = this.canvas.getZoom(); // 获取画布当前缩放值
       zoom *= 0.999 ** delta;
@@ -141,6 +162,9 @@ export class Board {
       this.mouseDown = false; //鼠标抬起
       this.showShape();
     }
+
+    //鼠标抬起 处理事情
+    //    this.textObject = null;
   };
 
   canvasMouseMove = (options) => {
@@ -153,11 +177,11 @@ export class Board {
 
   canvasMouseDown = (options) => {
     // 记录当前鼠标的起点坐标 (减去画布在 x y轴的偏移，因为画布左上角坐标不一定在浏览器的窗口左上角)
-    console.log("==5", options, options.e.clientX - this.canvas._offset.left);
-    console.log("==3", this.canvas);
-
     this.mouseFrom.x = options.e.clientX - this.canvas._offset.left; //options.e.clientX - this._offset.left;
     this.mouseFrom.y = options.e.clientY - this._offset.top;
+    console.log("=====down", options, this.tool);
+    this.points.x = options.pointer.x;
+    this.points.y = options.pointer.y;
     this.mouseDown = true;
     this.showDwonRender();
   };
@@ -170,18 +194,37 @@ export class Board {
         return this.drawText();
       case "ERASER":
         return this.getPixelColorOnCanvas();
+      case "BUCKET":
+        return this.drawBucket();
     }
   };
 
   getPixelColorOnCanvas = (): void => {
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.contextContainer as CanvasRenderingContext2D;
     const x = this.getTransformedPosX(this.mouseFrom.x);
     const y = this.getTransformedPosY(this.mouseFrom.y);
-    const p = ctx.getImageData(x, y, 5, 5).data;
-    console.log("=p==5", x, y, this.mouseFrom.x, this.mouseFrom.y, p);
+    const p = ctx.getImageData(x, y, 1, 1).data;
     this.eraserColor = rgbToHex(p[0], p[1], p[2], p[3]);
-    console.log("==5", this.eraserColor);
     this.showBrush();
+  };
+
+  drawBucket = () => {
+    const x = this.getTransformedPosX(this.mouseFrom.x);
+    const y = this.getTransformedPosY(this.mouseFrom.y);
+    if (this.fillColor) {
+      const color = new Color(this.fillColor);
+      console.log("drawBucket===3", x, y, this.points, color);
+      const newImageData = efficentFloodFill(
+        this.canvas.contextContainer as CanvasRenderingContext2D,
+        x,
+        y,
+        [color.red(), color.green(), color.blue()]
+      );
+      console.log("====", newImageData, this.canvas);
+      if (newImageData) {
+        this.canvas.contextContainer.putImageData(newImageData, 0, 0);
+      }
+    }
   };
 
   setIsDrawingMode(drawing: boolean) {
@@ -192,7 +235,6 @@ export class Board {
   setShape = (value: { shapeType?: string }) => {
     const { shapeType } = value;
     this.shapeType = shapeType || this.shapeType;
-    // this.showShape();
   };
 
   setShowCanvas = (value: { color?: string; lineWidth?: number }) => {
@@ -203,7 +245,6 @@ export class Board {
   };
 
   showPen() {
-    console.log("==pen", this.canvas!.isDrawingMode);
     // 设置自由绘画模式画笔类型为 铅笔类型
     this.canvas!.freeDrawingBrush = new fabric.PencilBrush(this.canvas!);
     // 设置自由绘画模式 画笔颜色与画笔线条大小
@@ -214,14 +255,16 @@ export class Board {
   showBrush() {
     this.canvas.isDrawingMode = true;
     // 自由绘画模式 画笔类型设置为 橡皮擦对象
-    this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
+    this.canvas!.freeDrawingBrush = new fabric.PencilBrush(this.canvas!);
+
+    //this.canvas.freeDrawingBrush = new fabric.EraserBrush(this.canvas);
     // 设置橡皮擦大小
     this.canvas.freeDrawingBrush.width = 35;
-    // this.canvas.freeDrawingBrush.color = this.eraserColor;
+    this.canvas.freeDrawingBrush.color = this.eraserColor;
   }
 
   showShape() {
-    console.log("++++++==", this.shapeType);
+    console.log("++++++==", this.shapeType, this.shapeLine);
     switch (this.shapeType) {
       case "RECT":
         // 创建一个矩形对象
@@ -230,17 +273,21 @@ export class Board {
         const top = this.getTransformedPosY(this.mouseFrom.y);
         let width = this.mouseTo.x - this.mouseFrom.x;
         let height = this.mouseTo.y - this.mouseFrom.y;
-        console.log("=rect==4", left, top, width, height);
         // 创建矩形 对象
-        let Rect = new fabric.Rect({
+        const options = {
           left: left,
           top: top,
           width: width,
           height: height,
+          strokeDashArray: [0, 0],
           stroke: this.strokeColor,
           fill: "transparent",
           strokeWidth: 1,
-        });
+        };
+        if (this.shapeLine === "DOTTED") {
+          options.strokeDashArray = [3, 3];
+        }
+        let Rect = new fabric.Rect(options);
         // 绘制矩形
         this.startDrawingObject(Rect);
         break;
@@ -256,6 +303,7 @@ export class Board {
             fill: this.strokeColor,
             stroke: this.strokeColor,
             strokeWidth: 1,
+            strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
           }
         );
         this.startDrawingObject(line);
@@ -279,6 +327,7 @@ export class Board {
           fill: "transparent",
           radius: radius,
           strokeWidth: 1,
+          strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
         });
         this.startDrawingObject(canvasObject);
         break;
@@ -296,6 +345,7 @@ export class Board {
           height: height_TRIANGLE,
           stroke: this.strokeColor,
           fill: "transparent",
+          strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
           strokeWidth: 1,
         });
         this.startDrawingObject(TRIANGLE);
@@ -311,15 +361,21 @@ export class Board {
       this.textObject = new fabric.Textbox("", {
         left: this.getTransformedPosX(this.mouseFrom.x),
         top: this.getTransformedPosY(this.mouseFrom.y),
-        fontSize: this.fontSize,
         fill: this.strokeColor,
-        hasControls: false,
+        hasControls: true,
         editable: true,
         width: 200,
         heigh: 50,
         backgroundColor: "#fff",
         selectable: false,
+        ...this.textStyle,
       });
+      // if (this.textStyle.letterSpacing) {
+      //   this.canvas.contextTop.canvas.setAttribute(
+      //     "style",
+      //     `word-spacing:${this.textStyle.letterSpacing}`
+      //   );
+      // }
       this.canvas.add(this.textObject);
       // 文本打开编辑模式
       this.textObject.enterEditing();

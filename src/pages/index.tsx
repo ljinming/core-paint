@@ -1,6 +1,7 @@
 import Header from "./header";
 import Content from "./content";
 import "./index.less";
+import "./font.css";
 import { useState, useEffect } from "react";
 interface HomeProps {
   backgroundColor: string;

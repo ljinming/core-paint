@@ -7,6 +7,10 @@ import Board from "@/board";
 import Pencil from "./Pencil";
 import Shape from "./Shape";
 import Eraser from "./Eraser";
+import Text from "./Text";
+import FillColor from "./FillColor";
+import { useState } from "react";
+import board from "@/board";
 interface ContentProps {
   pre: string;
   tool: string;
@@ -20,7 +24,7 @@ interface ContentProps {
 
 const Content = (props: ContentProps) => {
   const { pre, tool, imgSrc, backgroundColor, canvasSize } = props;
-
+  const [fillColor, setFillColor] = useState(board.fillColor);
   // const tool = useSelector((state: RootState) => {
   //   console.log("select---", state);
   //   return {
@@ -38,7 +42,15 @@ const Content = (props: ContentProps) => {
         return <Shape board={Board} />;
       case "ERASER":
         return <Eraser board={Board} />;
-
+      case "TEXT":
+        return <Text board={Board} />;
+      case "BUCKET":
+        return (
+          <FillColor
+            board={Board}
+            onChange={(color: string) => setFillColor(color)}
+          />
+        );
       default:
         break;
     }
@@ -47,7 +59,7 @@ const Content = (props: ContentProps) => {
 
   return (
     <div className={`${pre}-content`}>
-      <ToolType prefix={`${pre}-content`} select={tool} />
+      <ToolType prefix={`${pre}-content`} select={tool} color={fillColor} />
       <div className={`${pre}-content-canvas`}>
         <FabricJSCanvas
           canvasSize={canvasSize}
