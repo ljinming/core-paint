@@ -36,6 +36,7 @@ export class Board {
     x: number;
     y: number;
   };
+  recordTimer: any;
   constructor(initial: InitialProps) {
     this.tool = initial.tool;
     this.canvas = null;
@@ -50,7 +51,7 @@ export class Board {
     this.drawingObject = null; //记录绘画图形
     this.mouseDown = false;
     this.ctx = null;
-    this.eraserColor = "#fff";
+    this.eraserColor = "transparent";
     this.selected = false; //记录绘画是否被选中
     this.textStyle = {};
     this.fillColor = "";
@@ -75,7 +76,8 @@ export class Board {
   init(
     canvas: fabric.Canvas,
     canvasCurren: HTMLCanvasElement,
-    imgUrl?: string
+    imgUrl?: string,
+    other?: any
   ) {
     this.canvas = canvas;
     this._offset.left = canvasCurren.getBoundingClientRect().left;
@@ -85,10 +87,11 @@ export class Board {
     this.imgUrl = imgUrl;
     this.stateIdx = 0;
     if (imgUrl) {
+      const { showScale = 1 } = other;
       fabric.Image.fromURL(
         imgUrl,
         (img) => {
-          img.scale(0.5);
+          img.scale(showScale);
           img.selectable = false;
           this.canvas.add(img).renderAll();
         },
@@ -101,10 +104,12 @@ export class Board {
   }
 
   setTool = (tool: string) => {
-    if (tool !== "PEN") {
-      this.canvas.isDrawingMode = false;
+    if (this.canvas) {
+      if (tool !== "PEN") {
+        this.canvas.isDrawingMode = false;
+      }
+      this.tool = tool;
     }
-    this.tool = tool;
   };
 
   setTextStyle = (type: string, value: string | number) => {
@@ -114,8 +119,7 @@ export class Board {
   addEventListener = () => {
     // 监听鼠标按下事件
     this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
-    // 监听鼠标移动事件
-    this.canvas.on("mouse:move", this.canvasMouseMove.bind(this));
+
     // 监听鼠标抬起事件
     this.canvas.on("mouse:up", this.canvasMouseUp.bind(this));
     // 监听绘画选中/取消⌚️
@@ -128,6 +132,19 @@ export class Board {
     this.canvas.on("mouse:wheel", this.canvasMouseWheel.bind(this), {
       passive: false,
     });
+    this.canvas.on("after:render", this.canvasAfterRender.bind(this));
+  };
+
+  canvasAfterRender = (options) => {
+    // 画布更新 保存 //频繁触发 隔一秒保存一次
+    if (this.recordTimer) {
+      clearTimeout(this.recordTimer);
+      this.recordTimer = null;
+    }
+    this.recordTimer = setTimeout(() => {
+      this.stateArr.push(JSON.stringify(this.canvas));
+      this.stateIdx++;
+    }, 1000);
   };
 
   canvasMouseWheel = (options) => {
@@ -167,14 +184,6 @@ export class Board {
     //    this.textObject = null;
   };
 
-  canvasMouseMove = (options) => {
-    const ev = options.e;
-    //ev.preventDefault();
-    //this.mouseDown = false;
-    // console.log("move===4", options);
-    // this.showShape();
-  };
-
   canvasMouseDown = (options) => {
     // 记录当前鼠标的起点坐标 (减去画布在 x y轴的偏移，因为画布左上角坐标不一定在浏览器的窗口左上角)
     this.mouseFrom.x = options.e.clientX - this.canvas._offset.left; //options.e.clientX - this._offset.left;
@@ -185,6 +194,35 @@ export class Board {
     this.mouseDown = true;
     this.showDwonRender();
   };
+
+  // 撤销 或 还原
+  tapHistoryBtn(flag) {
+    let stateIdx = this.stateIdx + flag;
+    // 判断是否已经到了第一步操作
+    if (stateIdx < 0) return;
+    // 判断是否已经到了最后一步操作
+    if (stateIdx >= this.stateArr.length) return;
+    if (this.stateArr[stateIdx]) {
+      this.canvas.loadFromJSON(this.stateArr[stateIdx]);
+      if (this.canvas.getObjects().length > 0) {
+        this.canvas.getObjects().forEach((item) => {
+          item.set("selectable", false);
+        });
+      }
+      this.stateIdx = stateIdx;
+    }
+  }
+
+  clearAll() {
+    // 获取画布中的所有对象
+    if (this.canvas) {
+      let children = this.canvas.getObjects();
+      if (children.length > 0) {
+        // 移除所有对象
+        this.canvas.remove(...children);
+      }
+    }
+  }
 
   showDwonRender = () => {
     switch (this.tool) {
@@ -222,14 +260,32 @@ export class Board {
       );
       console.log("====", newImageData, this.canvas);
       if (newImageData) {
-        this.canvas.contextContainer.putImageData(newImageData, 0, 0);
+        this.showImg(newImageData);
+
+        //this.canvas.contextContainer.putImageData(newImageData, 0, 0);
       }
     }
   };
 
+  showImg = async (newImageData) => {
+    if (newImageData) {
+      this.canvas.contextContainer.drawImage(
+        await createImageBitmap(newImageData),
+        0,
+        0,
+        this.canvas.width,
+        this.canvas
+      );
+
+      //this.canvas.contextContainer.putImageData(newImageData, 0, 0);
+    }
+  };
+
   setIsDrawingMode(drawing: boolean) {
-    this.isDrawingMode = drawing;
-    this.canvas!.isDrawingMode = drawing;
+    if (this.canvas) {
+      this.isDrawingMode = drawing;
+      this.canvas!.isDrawingMode = drawing;
+    }
   }
 
   setShape = (value: { shapeType?: string }) => {
@@ -245,11 +301,13 @@ export class Board {
   };
 
   showPen() {
-    // 设置自由绘画模式画笔类型为 铅笔类型
-    this.canvas!.freeDrawingBrush = new fabric.PencilBrush(this.canvas!);
-    // 设置自由绘画模式 画笔颜色与画笔线条大小
-    this.canvas!.freeDrawingBrush.color = this.strokeColor;
-    this.canvas!.freeDrawingBrush.width = this.lineWidth;
+    if (this.canvas) {
+      // 设置自由绘画模式画笔类型为 铅笔类型
+      this.canvas!.freeDrawingBrush = new fabric.PencilBrush(this.canvas!);
+      // 设置自由绘画模式 画笔颜色与画笔线条大小
+      this.canvas!.freeDrawingBrush.color = this.strokeColor;
+      this.canvas!.freeDrawingBrush.width = this.lineWidth;
+    }
   }
 
   showBrush() {
@@ -415,11 +473,6 @@ export class Board {
     let zoom = Number(this.canvas.getZoom());
     return (y - this.canvas.viewportTransform[5]) / zoom;
   }
-
-  // resetMove() {
-  //   this.mouseFrom = {x:0,y:0};
-  //   this.mouseTo = {};
-  // },
 }
 
 export default new Board({
