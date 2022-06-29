@@ -1,4 +1,4 @@
-declare module "react-color";
+//declare module "react-color";
 // declare module "*.svg" {
 //   const src: string;
 //   export default src;

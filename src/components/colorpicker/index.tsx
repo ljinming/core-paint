@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SketchPicker } from "react-color";
-
+import { toHexString } from "@/board/colorChange";
 import "./index.less";
 
 interface ColorProps {
@@ -10,11 +10,12 @@ interface ColorProps {
 
 export default (props: ColorProps) => {
   const { color, onChange } = props;
-  const [showColor, setColor] = useState(color || "");
+  const [showColor, setColor] = useState(color || "#000");
 
   const handleChange = (color: any, event: any) => {
-    setColor(color.hex);
-    onChange(color.hex);
+    const hexColor: string = toHexString(color.rgb);
+    setColor(hexColor);
+    onChange(hexColor);
   };
 
   return (

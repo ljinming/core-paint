@@ -32,7 +32,7 @@ function getImageSize(url: string): Promise<{
 export default (props: HomeProps) => {
   const pre = `core-paint`;
   const {
-    imgSrc = "https://bafybeib43atlw6hxffw7xysnhtznpiey2cqln2akufhixfsequpnfjf5dq.ipfs.dweb.link/orign.png",
+    imgSrc = "https://bafybeicgvg3vwtv5c633cjexbykjp75yjt755qhma4o7vgusa4ldvocz44.ipfs.dweb.link/orign.png",
     width,
     height,
   } = props;

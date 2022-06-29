@@ -14,23 +14,23 @@
   },
   "repository": {
     "type": "Git",
-    "url": "git+https://github.com/ljinming/core"
+    "url": "git+https://github.com/ljinming/core-paint"
   },
   "keywords": [
     "core",
-    "脚手架"
+    "react",
+    "paint"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "antd": "^4.21.2",
-    "color": "^4.2.3",
     "fabric": "^5.2.1",
     "less": "^3.13.1",
     "less-loader": "^7.3.0",
     "react-color": "^2.19.3"
   },
-  "homepage": "https://github.com/ljinming/core",
+  "homepage": "https://github.com/ljinming/core-paint",
   "devDependencies": {
     "@babel/core": "7.12.3",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",

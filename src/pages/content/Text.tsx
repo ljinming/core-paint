@@ -17,12 +17,11 @@ const textFamily = [
   "Poppins-Light",
   "Poppins-Medium",
   "Poppins-Regular",
-  "Poppins-SemiBold"
+  "Poppins-SemiBold",
 ];
 
 const Text = (props: TextProps) => {
   const handleChange = (type, value) => {
-    console.log("==text", type, value);
     board.setTextStyle(type, value);
   };
 
@@ -30,7 +29,10 @@ const Text = (props: TextProps) => {
     <div className="text">
       <div>
         <h3>Font</h3>
-        <Select style={{ width: "100%" }} onChange={(value) => handleChange("fontFamily", value)}>
+        <Select
+          style={{ width: "100%" }}
+          onChange={(value) => handleChange("fontFamily", value)}
+        >
           {textFamily.map((va) => {
             return (
               <Option key={va} value={va}>

@@ -32,7 +32,6 @@ const Content = (props: ContentProps) => {
   //   };
   // }, shallowEqual);
 
-  console.log("==", tool);
   const renderRight = () => {
     let right = <>test</>;
     switch (tool) {
@@ -75,7 +74,6 @@ const Content = (props: ContentProps) => {
 };
 
 function mapStateToProps(state: RootState) {
-  console.log("=====", state);
   return {
     tool: state.paint.tool.select,
   };

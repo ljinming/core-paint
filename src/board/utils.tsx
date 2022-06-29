@@ -26,7 +26,6 @@ export const efficentFloodFill = (
   const pixelStack: [number, number][] = [
     [Math.round(startX), Math.round(startY)],
   ];
-  console.log("===", pixelStack);
   const canvasWidth = ctx.canvas.width,
     canvasHeight = ctx.canvas.height;
   const startPos = (startY * canvasWidth + startX) * 4;
@@ -36,6 +35,7 @@ export const efficentFloodFill = (
     colorLayer.data[startPos + 1],
     colorLayer.data[startPos + 2],
   ];
+  const updatePoint = {};
 
   if (
     startColor[0] === fillColor[0] &&
@@ -45,11 +45,14 @@ export const efficentFloodFill = (
     return null;
   while (pixelStack.length > 0) {
     const newPos = pixelStack.pop() as [number, number];
-
     const x = newPos[0];
     let y = newPos[1];
-
     let pixelPos = (y * canvasWidth + x) * 4;
+
+    if (updatePoint[pixelPos]) {
+      continue;
+    }
+
     while (y-- >= 0 && matchColor(colorLayer, pixelPos, startColor)) {
       pixelPos -= canvasWidth * 4;
     }
@@ -62,6 +65,7 @@ export const efficentFloodFill = (
       y++ < canvasHeight - 1 &&
       matchColor(colorLayer, pixelPos, startColor)
     ) {
+      updatePoint[pixelPos] = true;
       fillPixel(colorLayer, pixelPos, fillColor);
       if (x > 0) {
         if (matchColor(colorLayer, pixelPos - 4, startColor)) {
@@ -89,7 +93,6 @@ export const efficentFloodFill = (
     }
   }
   return colorLayer;
-  //ctx.putImageData(colorLayer, 0, 0);
 };
 
 /**
@@ -120,4 +123,14 @@ const fillPixel = (
   colorLayer.data[pixelPos + 2] = color[2];
 
   return colorLayer;
+};
+
+/*
+  不同的工具发生不同的事件
+*/
+export const calcMouseDown = (tool, event) => {
+  console.log("===4", tool, event);
+
+  if (tool === "SHAPE") {
+  }
 };

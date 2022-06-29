@@ -10,7 +10,7 @@
       "@assets": ["./src/assets"],
       "@components": ["./src/components"]
     },
-    "target": "es2016",
+    "target": "es2015",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
