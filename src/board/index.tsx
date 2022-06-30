@@ -1,6 +1,7 @@
 import { fabric } from "fabric";
 import "fabric/src/mixins/eraser_brush.mixin";
 import { efficentFloodFill, rgbToHex } from "./utils";
+import { shapeMouseDown, shapeMouseMove, shapeDblclick } from "./shape";
 import Color from "color";
 
 interface InitialProps {
@@ -57,23 +58,28 @@ export class Board {
     this.fillColor = "";
     this._offset = {
       left: 0,
-      top: 0
+      top: 0,
     };
     this.mouseFrom = {
       x: 0,
-      y: 0
+      y: 0,
     };
     this.points = {
       x: 0,
-      y: 0
+      y: 0,
     };
     this.mouseTo = {
       x: 0,
-      y: 0
+      y: 0,
     };
   }
 
-  init(canvas: fabric.Canvas, canvasDom: HTMLCanvasElement, imgUrl?: string, other?: any) {
+  init(
+    canvas: fabric.Canvas,
+    canvasDom: HTMLCanvasElement,
+    imgUrl?: string,
+    other?: any
+  ) {
     this.canvas = canvas;
     this._offset.left = canvasDom.getBoundingClientRect().left;
     this._offset.top = canvasDom.getBoundingClientRect().top;
@@ -114,6 +120,10 @@ export class Board {
   addEventListener = () => {
     // 监听鼠标按下事件
     this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
+    // 鼠标移动
+    this.canvas.on("mouse:move", this.mouseMove.bind(this));
+    //双击事件
+    this.canvas.on("mouse:dblclick", this.canvasDbClick.bind(this));
 
     // 监听鼠标抬起事件
     this.canvas.on("mouse:up", this.canvasMouseUp.bind(this));
@@ -154,10 +164,16 @@ export class Board {
         {
           // 关键点
           x: options.e.offsetX,
-          y: options.e.offsetY
+          y: options.e.offsetY,
         },
         zoom // 传入修改后的缩放级别
       );
+    }
+  };
+
+  mouseMove = (options) => {
+    if (this.tool === "SHAPE") {
+      shapeMouseMove(options, this.canvas);
     }
   };
 
@@ -176,6 +192,13 @@ export class Board {
     //    this.textObject = null;
   };
 
+  //双击事件
+  canvasDbClick = (options) => {
+    if (this.tool === "SHAPE") {
+      shapeDblclick(options, this.canvas);
+    }
+  };
+
   canvasMouseDown = (options) => {
     // 记录当前鼠标的起点坐标 (减去画布在 x y轴的偏移，因为画布左上角坐标不一定在浏览器的窗口左上角)
     this.mouseFrom.x = options.e.clientX - this._offset.left; //options.e.clientX - this._offset.left;
@@ -183,7 +206,10 @@ export class Board {
     this.points.x = options.pointer.x;
     this.points.y = options.pointer.y;
     this.mouseDown = true;
-    this.showDwonRender();
+    // this.showDwonRender();
+    if (this.tool === "SHAPE") {
+      shapeMouseDown(options, this.canvas);
+    }
   };
 
   // 撤销 或 还原
@@ -243,7 +269,11 @@ export class Board {
     if (this.fillColor) {
       const color = new Color(this.fillColor);
       const ctx = this.canvas.getContext();
-      const newImageData = efficentFloodFill(ctx, x, y, [color.red(), color.green(), color.blue()]);
+      const newImageData = efficentFloodFill(ctx, x, y, [
+        color.red(),
+        color.green(),
+        color.blue(),
+      ]);
       if (newImageData) {
         this.showImg(newImageData);
 
@@ -339,7 +369,7 @@ export class Board {
           strokeDashArray: [0, 0],
           stroke: this.strokeColor,
           fill: "transparent",
-          strokeWidth: 1
+          strokeWidth: 1,
         };
         if (this.shapeLine === "DOTTED") {
           options.strokeDashArray = [3, 3];
@@ -354,15 +384,16 @@ export class Board {
             this.getTransformedPosX(this.mouseFrom.x),
             this.getTransformedPosY(this.mouseFrom.y),
             this.getTransformedPosX(this.mouseTo.x),
-            this.getTransformedPosY(this.mouseTo.y)
+            this.getTransformedPosY(this.mouseTo.y),
           ],
           {
             fill: this.strokeColor,
             stroke: this.strokeColor,
             strokeWidth: 1,
-            strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null
+            strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
           }
         );
+        //line.setCoords('x2',)
         this.startDrawingObject(line);
         break;
       case "CIRCLE":
@@ -384,7 +415,7 @@ export class Board {
           fill: "transparent",
           radius: radius,
           strokeWidth: 1,
-          strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null
+          strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
         });
         this.startDrawingObject(canvasObject);
         break;
@@ -392,7 +423,9 @@ export class Board {
         let left_TRIANGLE = this.mouseFrom.x;
         let top_TRIANGLE = this.mouseFrom.y;
         let height_TRIANGLE = this.mouseTo.y - this.mouseFrom.y;
-        let width_TRIANGLE = Math.sqrt(Math.pow(height_TRIANGLE, 2) + Math.pow(height_TRIANGLE / 2.0, 2));
+        let width_TRIANGLE = Math.sqrt(
+          Math.pow(height_TRIANGLE, 2) + Math.pow(height_TRIANGLE / 2.0, 2)
+        );
         let TRIANGLE = new fabric.Triangle({
           left: left_TRIANGLE,
           top: top_TRIANGLE,
@@ -401,7 +434,7 @@ export class Board {
           stroke: this.strokeColor,
           fill: "transparent",
           strokeDashArray: this.shapeLine === "DOTTED" ? [3, 3] : null,
-          strokeWidth: 1
+          strokeWidth: 1,
         });
         this.startDrawingObject(TRIANGLE);
 
@@ -423,7 +456,7 @@ export class Board {
         // heigh: 50,
         backgroundColor: "#fff",
         selectable: false,
-        ...this.textStyle
+        ...this.textStyle,
       });
       // if (this.textStyle.letterSpacing) {
       //   this.canvas.contextTop.canvas.setAttribute(
@@ -473,5 +506,5 @@ export class Board {
 }
 
 export default new Board({
-  tool: "PEN"
+  tool: "PEN",
 });

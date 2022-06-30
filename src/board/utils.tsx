@@ -124,13 +124,3 @@ const fillPixel = (
 
   return colorLayer;
 };
-
-/*
-  不同的工具发生不同的事件
-*/
-export const calcMouseDown = (tool, event) => {
-  console.log("===4", tool, event);
-
-  if (tool === "SHAPE") {
-  }
-};

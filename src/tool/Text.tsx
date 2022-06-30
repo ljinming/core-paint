@@ -1,5 +1,5 @@
 import fabric from "fabric/fabric-impl";
-import Tool from "./index";
+import Tool from "./tool";
 
 export class Text extends Tool {
   init() {
@@ -10,6 +10,6 @@ export class Text extends Tool {
       fontSize: 20,
     });
 
-    this.canvas.add(textbox);
+    Tool.canvas.add(textbox);
   }
 }
