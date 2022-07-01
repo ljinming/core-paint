@@ -1,10 +1,13 @@
 import { Board } from "@/board";
-import { fabric } from "fabric";
+import { fabric } from "fabric-with-erasing";
 // import Tool from "@/board/tool/tool";
 // import Pen from "@/board/tool/pen";
-import { Tool, Pen, Shape } from "@/tool";
+import { Tool, Pen, Shape, Eraser } from "@/tool";
 import { useEffect, useRef, useState } from "react";
 import "./index.less";
+
+let translatex = 0;
+let translatey = 0;
 interface CanvasProps {
   board: Board;
   backgroundColor?: string;
@@ -24,39 +27,46 @@ export default (props: CanvasProps) => {
   const { canvasSize, imgSrc, backgroundColor, tool, id, board } = props;
   useEffect(() => {
     const canvasBox = canvasBoxRef.current;
+    const canvasCurrent = canvasRef.current;
     const { width, height } = canvasBox.getBoundingClientRect();
+    const { left, top } = canvasCurrent.getBoundingClientRect();
     //board.clearAll();
     if (canvasSize) {
       const showScale =
         Math.min(width, height) /
           Math.max(canvasSize.height, canvasSize.width) || 1;
-      const showWidth = canvasSize.width * showScale;
-      const showHeight = canvasSize.width * showScale;
-      if (showWidth && showHeight) {
-        const canvas = new fabric.Canvas(canvasRef.current, {
-          width: showWidth, // 画布宽度
-          height: showHeight, // 画布高度
-          backgroundColor: backgroundColor, // 画布背景色
-          // isDrawingMode: true,
-        });
-        Tool.canvas = canvas;
-        if (imgSrc) {
-          // const { showScale = 1 } = other;
-          fabric.Image.fromURL(
-            imgSrc,
-            (img) => {
-              img.scale(showScale);
-              img.selectable = false;
-              canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-            },
-            { crossOrigin: "anonymous" }
-          );
-        }
-        // Tool.init(canvas, canvasRef.current, imgSrc, {
-        //   showScale: showScale || 1,
-        // });
-        setCanvas(canvas);
+      //初始化画布
+      const canvas = new fabric.Canvas(canvasRef.current, {
+        width: canvasSize.width, // 画布宽度
+        height: canvasSize.height, // 画布高度
+        backgroundColor: backgroundColor, // 画布背景色
+        // isDrawingMode: true,
+      });
+      canvas.setZoom(showScale); // 设置画布缩放级别
+      translatex = (width - canvasSize.width * showScale) / 2;
+      translatey = (height - canvasSize.height * showScale) / 2;
+      Tool.currentScale = showScale;
+      Tool.canvas = canvas;
+      Tool.canvasCurrent = canvasCurrent;
+      Tool._offset = {
+        x: left,
+        y: top,
+      };
+      if (imgSrc) {
+        // const { showScale = 1 } = other;
+        fabric.Image.fromURL(
+          imgSrc,
+          (img) => {
+            // img.scale(showScale);
+            // img.selectable = false;
+            //canvas.add(img).renderAll();
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+          },
+          { crossOrigin: "anonymous" }
+        );
       }
+      //canvasCurrent.style.transform = `scale(${showScale})`;
+      setCanvas(canvas);
     }
   }, [canvasSize]);
 
@@ -66,7 +76,9 @@ export default (props: CanvasProps) => {
       switch (tool) {
         case "PEN":
           // 开启绘画功能
-          fabricCanvas.isDrawingMode = true;
+          if (!fabricCanvas.isDrawingMode) {
+            fabricCanvas.isDrawingMode = true;
+          }
           setManage(new Pen());
           // new Pen();
           // board.setIsDrawingMode(true);
@@ -75,16 +87,17 @@ export default (props: CanvasProps) => {
         case "SHAPE":
           //关闭绘画功能
           console.log("--5");
-          fabricCanvas.isDrawingMode = false;
-          // board.setIsDrawingMode(false);
+          //fabricCanvas.isDrawingMode = false;
           setManage(new Shape());
           break;
         case "ERASER":
-          board.setIsDrawingMode(true);
+          fabricCanvas.isDrawingMode = true;
+          setManage(new Eraser());
+          //board.setIsDrawingMode(true);
           break;
       }
     }
-  }, [tool]);
+  }, [tool, fabricCanvas]);
 
   const onMouseDown = (options) => {
     if (manager) {
@@ -121,6 +134,26 @@ export default (props: CanvasProps) => {
     }
   };
 
+  const onWheel = (options) => {
+    const { e } = options;
+    e.preventDefault();
+    const { deltaY, offsetX, offsetY } = e; // 滚轮，向上滚一下是 -100，向下滚一下是 100
+    let zoom = Tool.canvas.getZoom(); // 获取画布当前缩放值
+    zoom *= 0.999 ** deltaY;
+    if (zoom > 20) zoom = 20; // 限制最大缩放级别
+    if (zoom < 0.01) zoom = 0.01; // 限制最小缩放级别
+
+    // 以鼠标所在位置为原点缩放
+    Tool.canvas.zoomToPoint(
+      {
+        // 关键点
+        x: offsetX,
+        y: offsetY,
+      },
+      zoom // 传入修改后的缩放级别
+    );
+  };
+
   useEffect(() => {
     if (fabricCanvas) {
       fabricCanvas.on("mouse:down", onMouseDown);
@@ -129,11 +162,23 @@ export default (props: CanvasProps) => {
       //双击
       fabricCanvas.on("mouse:dblclick", onDbClick);
 
+      //缩放
+      fabricCanvas.on("mouse:wheel", onWheel);
+
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
     }
-  }, [manager, fabricCanvas]);
+  }, [
+    manager,
+    fabricCanvas,
+    onMouseDown,
+    onMouseMove,
+    onMouseUp,
+    onDbClick,
+    onSelected,
+    onCancelSelected,
+  ]);
 
   return (
     <div className="ccc-canvas-box" ref={canvasBoxRef}>

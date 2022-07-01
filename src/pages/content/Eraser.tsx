@@ -1,16 +1,18 @@
 import Sider from "@/components/sliderCard";
 // import ColorPicker from "@/components/colorPicker";
 import { Board } from "@/board";
+import { Eraser } from "@/tool";
 
 interface EraserProps {
   board: Board;
 }
 
-const Eraser = (props: EraserProps) => {
+const EraserRight = (props: EraserProps) => {
   const { board } = props;
 
-  const handleChange = (type: string, value: number | string) => {
-    board.setShowCanvas({ [type]: value });
+  const handleChange = (type: string, value: number) => {
+    // board.setShowCanvas({ [type]: value });
+    Eraser.setEraserStyle(value);
   };
 
   return (
@@ -25,4 +27,4 @@ const Eraser = (props: EraserProps) => {
   );
 };
 
-export default Eraser;
+export default EraserRight;

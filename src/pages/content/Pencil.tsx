@@ -12,7 +12,7 @@ const Pencil = (props: pencilProps) => {
 
   const handleChange = (type: string, value: number | string) => {
     //  board.setShowCanvas({ [type]: value });
-    Tool.setTool("PENTool", { [type]: value });
+    // Tool.setTool("PENTool", { [type]: value });
     Pen.setPenStyle(type, value);
   };
 

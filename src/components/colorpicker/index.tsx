@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SketchPicker } from "react-color";
-import { toHexString } from "@/board/colorChange";
+import { toHexString } from "@/tool/colorChange";
 import "./index.less";
 
 interface ColorProps {

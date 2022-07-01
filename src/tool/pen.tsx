@@ -10,10 +10,8 @@ class Pen extends Tool {
     }
   }
 
-  // onMouseMove = () => {
-  //   if (Tool.canvas && !Tool.canvas.isDrawingMode) {
-  //     Tool.canvas.isDrawingMode = true;
-  //   }
+  // onMouseDown = () => {
+  //   Tool.canvas!.freeDrawingBrush.width = value;
   // };
 }
 

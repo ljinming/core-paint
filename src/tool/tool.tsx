@@ -1,4 +1,4 @@
-import { fabric } from "fabric";
+import { fabric } from "fabric-with-erasing";
 
 export interface Point {
   x: number;
@@ -10,6 +10,7 @@ export interface Pencil {
   strokeColor: string;
 }
 
+//缩放后鼠标坐标
 export const getTransformedPos = (points: Point): Point => {
   let zoom = Number(Tool.canvas.getZoom());
   return {
@@ -18,29 +19,43 @@ export const getTransformedPos = (points: Point): Point => {
   };
 };
 
+//当前鼠标坐标
+export const getMousePos = (event: MouseEvent): Point => {
+  return {
+    x: event.clientX - Tool._offset.x,
+    y: event.clientY - Tool._offset.y,
+  };
+};
+
+export const getMousePosition = (event: MouseEvent): Point => {
+  const scale = Tool.currentScale || 1;
+  const rect = Tool.canvasCurrent.getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) / scale,
+    y: (event.clientY - rect.top) / scale,
+  };
+};
+
 export default class Tool {
   //选择的工具
-  private toolType: string = "PEN";
+  public toolType: string = "PEN";
 
   // canvas
   public static canvas: fabric.Canvas;
 
-  // pen 相关数据
-  public static PENTool: Pencil = {
-    lineWidth: 1,
-    strokeColor: "#000",
-  };
+  static currentScale: number = 1;
+  static _offset: { x: any; y: any };
+  static canvasCurrent: any;
 
-  static setTool(
-    toolType: string,
-    value: Record<string, string | number>
-  ): void {
-    Tool[toolType] = { ...Tool[toolType], ...value };
-  }
+  // static setTool(
+  //   toolType: string,
+  //   value: Record<string, string | number>
+  // ): void {
+  //   Tool[toolType] = { ...Tool[toolType], ...value };
+  // }
 
   public onMouseDown(event: MouseEvent): void {
     //
-    console.log("e43", event);
   }
   public onMouseMove(event: MouseEvent): void {
     //

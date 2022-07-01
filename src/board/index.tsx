@@ -2,7 +2,7 @@ import { fabric } from "fabric";
 import "fabric/src/mixins/eraser_brush.mixin";
 import { efficentFloodFill, rgbToHex } from "./utils";
 import { shapeMouseDown, shapeMouseMove, shapeDblclick } from "./shape";
-import Color from "color";
+//import Color from "color";
 
 interface InitialProps {
   tool: string;
@@ -267,18 +267,18 @@ export class Board {
     const x = this.getTransformedPosX(this.mouseFrom.x);
     const y = this.getTransformedPosY(this.mouseFrom.y);
     if (this.fillColor) {
-      const color = new Color(this.fillColor);
+      //const color = new Color(this.fillColor);
       const ctx = this.canvas.getContext();
-      const newImageData = efficentFloodFill(ctx, x, y, [
-        color.red(),
-        color.green(),
-        color.blue(),
-      ]);
-      if (newImageData) {
-        this.showImg(newImageData);
+      // const newImageData = efficentFloodFill(ctx, x, y, [
+      //   color.red(),
+      //   color.green(),
+      //   color.blue(),
+      // ]);
+      // if (newImageData) {
+      //   this.showImg(newImageData);
 
-        //this.canvas.contextContainer.putImageData(newImageData, 0, 0);
-      }
+      //   //this.canvas.contextContainer.putImageData(newImageData, 0, 0);
+      // }
     }
   };
 

@@ -1,5 +1,5 @@
-import Tool from "./tool";
-import { fabric } from "fabric";
+import Tool, { getTransformedPos, getMousePos, getMousePosition } from "./tool";
+import { fabric } from "fabric-with-erasing";
 import { Point } from "./tool";
 
 class Shape extends Tool {
@@ -201,43 +201,59 @@ class Shape extends Tool {
     Tool.canvas.requestRenderAll();
   }
 
-  public onMouseDown(options): void {
-    const { e, pointer } = options;
+  onMouseDown(options): void {
+    console.log("=shape=options=345", options);
+
+    if (Tool.canvas.isDrawingMode) {
+      return;
+    }
+    const { e } = options;
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
-    this.downPoints = pointer;
+    const showPointer = getMousePos(e); //getTransformedPos(pointer);
+    const zoomPoint = getTransformedPos(showPointer);
+    this.downPoints = zoomPoint; //鼠标按下的位置
+    console.log("===456", Tool.canvas);
+    console.log("==34", options);
+    const calcPoints = getMousePosition(e);
+
     if (!this.selected) {
       if (shapeType === "RHOMBUS") {
         if (!this.shapeCurrent) {
-          this.createShape(pointer);
+          this.createShape(zoomPoint);
         } else {
-          this.changeShape(pointer);
+          this.changeShape(zoomPoint);
         }
       } else if (!this.shapeCurrent) {
-        this.createShape(pointer);
+        this.createShape(calcPoints);
       }
     }
   }
 
   public onMouseMove(options): void {
-    const { e, pointer } = options;
+    const { e } = options;
     const { shapeType } = Shape.shapeObject;
+    const showPointer = getMousePos(e); //鼠标按下位置
+    const zoomPoint = getTransformedPos(showPointer); //缩放后的位置
     e.preventDefault();
+    const calcPoints = getMousePosition(e);
+
     if (this.shapeCurrent) {
       if (shapeType === "RHOMBUS") {
-        this.changePolygonBelt(pointer);
+        this.changePolygonBelt(zoomPoint);
       } else {
-        this.changeShape(pointer);
+        this.changeShape(calcPoints);
       }
     }
   }
 
   public onMouseUp(options): void {
-    const { e, pointer } = options;
+    const { e } = options;
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
+    const showPointer = getMousePos(e); //鼠标按下位置
     if (shapeType !== "RHOMBUS") {
-      this.upPoints = pointer;
+      this.upPoints = showPointer;
       if (JSON.stringify(this.downPoints) === JSON.stringify(this.upPoints)) {
         Tool.canvas.remove(this.shapeCurrent);
       }
@@ -248,9 +264,10 @@ class Shape extends Tool {
   public onDbClick(options): void {
     const { shapeType } = Shape.shapeObject;
     const { e, pointer } = options;
+    const showPointer = getTransformedPos(pointer);
     e.preventDefault();
     if (shapeType === "RHOMBUS" && this.shapeCurrent) {
-      this.finishPolygon(pointer);
+      this.finishPolygon(showPointer);
     }
   }
 

@@ -29,6 +29,8 @@ function getImageSize(url: string): Promise<{
   });
 }
 
+//https://bafybeie3y4v25vj3owiqc5jxdhpcqld5klixy32fhcfytyfyve7k5ssyv4.ipfs.dweb.link/orign.png
+//"https://bafybeicgvg3vwtv5c633cjexbykjp75yjt755qhma4o7vgusa4ldvocz44.ipfs.dweb.link/orign.png",
 export default (props: HomeProps) => {
   const pre = `core-paint`;
   const {
