@@ -14,17 +14,20 @@ import shape_arrowleft from "@/assets/icon/shape_arrowleft.svg";
 import shape_fourstar from "@/assets/icon/shape_fourstar.svg";
 import ColorPicker from "@/components/colorPicker";
 import { useState } from "react";
+import { Shape } from "@/tool";
 
 interface pencilProps {
   board: Board;
 }
 
-const Shape = (props: pencilProps) => {
+const ShapeRight = (props: pencilProps) => {
   const { board } = props;
   const [showValue, setShow] = useState("LINE");
 
-  const handleChange = (type: string, value: number | string) => {
+  const handleChange = (type: string, value: string) => {
     board.setShowCanvas({ [type]: value });
+    console.log("==45", type, value);
+    Shape.changeShapeType(type, value);
   };
 
   const shapes = [
@@ -96,7 +99,8 @@ const Shape = (props: pencilProps) => {
       <Select
         style={{ width: "100%" }}
         defaultValue={"SOLID"}
-        onChange={(value) => (board.shapeLine = value)}
+        onChange={(value) => handleChange("border", value)}
+        // onChange={(value) => (board.shapeLine = value)}
       >
         <Select.Option value={"SOLID"}>solid line</Select.Option>
         <Select.Option value={"DOTTED"}>dotted line</Select.Option>
@@ -110,10 +114,11 @@ const Shape = (props: pencilProps) => {
             className={`shape-item ${
               showValue === shape.type ? "selected-shape" : ""
             }`}
-            onClick={() => {
-              setShow(shape.type);
-              board.setShape({ shapeType: shape.type });
-            }}
+            onClick={() => handleChange("shapeType", shape.type)}
+            // onClick={() => {
+            //   setShow(shape.type);
+            //   board.setShape({ shapeType: shape.type });
+            // }}
           />
         ))}
       </div>
@@ -122,4 +127,4 @@ const Shape = (props: pencilProps) => {
   );
 };
 
-export default Shape;
+export default ShapeRight;

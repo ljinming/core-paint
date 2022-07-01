@@ -87,8 +87,6 @@ export default (props: CanvasProps) => {
   }, [tool]);
 
   const onMouseDown = (options) => {
-    console.log("e44", manager);
-
     if (manager) {
       manager.onMouseDown(options);
     }
@@ -99,10 +97,41 @@ export default (props: CanvasProps) => {
     }
   };
 
+  const onMouseUp = (options) => {
+    if (manager) {
+      manager.onMouseUp(options);
+    }
+  };
+
+  const onSelected = (options) => {
+    if (manager) {
+      manager.onSelected(options);
+    }
+  };
+
+  const onCancelSelected = (options) => {
+    if (manager) {
+      manager.onCancelSelected(options);
+    }
+  };
+
+  const onDbClick = (options) => {
+    if (manager) {
+      manager.onDbClick(options);
+    }
+  };
+
   useEffect(() => {
     if (fabricCanvas) {
       fabricCanvas.on("mouse:down", onMouseDown);
       fabricCanvas.on("mouse:move", onMouseMove);
+      fabricCanvas.on("mouse:up", onMouseUp);
+      //双击
+      fabricCanvas.on("mouse:dblclick", onDbClick);
+
+      // 监听绘画选中/取消⌚️
+      fabricCanvas.on("selection:created", onSelected);
+      fabricCanvas.on("selection:cleared", onCancelSelected);
     }
   }, [manager, fabricCanvas]);
 

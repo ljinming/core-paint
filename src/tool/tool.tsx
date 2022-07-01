@@ -50,6 +50,13 @@ export default class Tool {
     //
   }
 
+  public onSelected(event: MouseEvent): void {}
+
+  public onCancelSelected(event: MouseEvent): void {}
+
+  //双击
+  public onDbClick(event: MouseEvent): void {}
+
   public onTouchStart(event: TouchEvent): void {
     //
   }
