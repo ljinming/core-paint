@@ -202,9 +202,10 @@ class Shape extends Tool {
   }
 
   onMouseDown(options): void {
-    if (Tool.canvas.isDrawingMode) {
+    if (Tool.toolType !== "SHAPE") {
       return;
     }
+
     const { e } = options;
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
@@ -227,18 +228,20 @@ class Shape extends Tool {
   }
 
   public onMouseMove(options): void {
-    const { e } = options;
-    const { shapeType } = Shape.shapeObject;
-    const showPointer = getMousePos(e); //鼠标按下位置
-    const zoomPoint = getTransformedPos(showPointer); //缩放后的位置
-    e.preventDefault();
-    const calcPoints = getMousePosition(e);
+    if (Tool.toolType === "SHAPE") {
+      const { e } = options;
+      const { shapeType } = Shape.shapeObject;
+      const showPointer = getMousePos(e); //鼠标按下位置
+      const zoomPoint = getTransformedPos(showPointer); //缩放后的位置
+      e.preventDefault();
+      const calcPoints = getMousePosition(e);
 
-    if (this.shapeCurrent) {
-      if (shapeType === "RHOMBUS") {
-        this.changePolygonBelt(zoomPoint);
-      } else {
-        this.changeShape(calcPoints);
+      if (this.shapeCurrent) {
+        if (shapeType === "RHOMBUS") {
+          this.changePolygonBelt(zoomPoint);
+        } else {
+          this.changeShape(calcPoints);
+        }
       }
     }
   }

@@ -1,8 +1,6 @@
 import { fabric } from "fabric";
-import "fabric/src/mixins/eraser_brush.mixin";
 import { efficentFloodFill, rgbToHex } from "./utils";
 import { shapeMouseDown, shapeMouseMove, shapeDblclick } from "./shape";
-//import Color from "color";
 
 interface InitialProps {
   tool: string;

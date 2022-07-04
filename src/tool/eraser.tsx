@@ -21,7 +21,10 @@ class Eraser extends Tool {
     const ctx = Tool.canvas.getContext();
     const p = ctx.getImageData(pointer.x, pointer.y, 1, 1).data;
     this.color = rgbToHex(p[0], p[1], p[2], p[3]);
+    //Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas); // 使用橡皮擦画笔
+    Tool.canvas.freeDrawingBrush.width = 30; // 设置画笔粗细为 10
     Tool.canvas.freeDrawingBrush.color = this.color;
+    // fabric.util.
   };
 
   createRraser = () => {
@@ -39,14 +42,18 @@ class Eraser extends Tool {
     // // const showPoint = getTransformedPos(pointer);
     e.preventDefault();
     const show = {
-      x: calcPoints.x * 2,
-      y: calcPoints.y * 2,
+      x: pointer.x * 2,
+      y: pointer.y * 2,
     };
     this.getPixelColorOnCanvas(show);
   }
   onMouseMove(options) {
     // Tool.canvas!.freeDrawingBrush.color = this.color;
     // Tool.canvas!.freeDrawingBrush.width = this.lineWidth;
+  }
+  public onSelected(options): void {
+    console.log("====567", options);
+    //this.selected = true;
   }
 }
 

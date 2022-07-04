@@ -1,5 +1,6 @@
 import Tool, { getTransformedPos, getMousePosition, getMousePos } from "./tool";
 import { parseColorString } from "./colorChange";
+import { fabric } from "fabric";
 const efficentFloodFill = (
   ctx: CanvasRenderingContext2D,
   startX: number,
@@ -79,7 +80,18 @@ const efficentFloodFill = (
       pixelPos += canvasWidth * 4;
     }
   }
+  //ColorMatrix(colorLayer);
+  const filter = new fabric.Image.filters.ColorMatrix();
+  //console.log("==3", filter);
+  //filter.applyTo2d(ctx);
+  //console.log("==4", colorLayer.data);
+  //new fabric.Image.filters.ColorMatrix({ matrix: colorLayer.data });
+
   ctx.putImageData(colorLayer, 0, 0);
+  //Tool.canvas.renderAll.bind(Tool.canvas);
+  // ctx.toDataURL();
+  // filter.applyTo(colorLayer.toDataURL());
+  Tool.canvas.requestRenderAll.bind(Tool.canvas);
 };
 
 /**
@@ -95,9 +107,9 @@ const matchColor = (
   const b = colorLayer.data[pixelPos + 2];
 
   return (
-    Math.abs(r - color[0]) < 30 &&
-    Math.abs(g - color[1]) < 30 &&
-    Math.abs(b - color[2]) < 30
+    Math.abs(r - color[0]) < 20 &&
+    Math.abs(g - color[1]) < 20 &&
+    Math.abs(b - color[2]) < 20
   );
 };
 
@@ -113,6 +125,7 @@ const fillPixel = (
   colorLayer.data[pixelPos + 1] = color[1];
   colorLayer.data[pixelPos + 2] = color[2];
 
+  //return colorLayer;
   return colorLayer;
 };
 
@@ -129,21 +142,59 @@ class Bucket extends Tool {
     Promise.resolve().then(() => {
       efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
     });
+
+    //this.filterChange();
+
+    // Tool.canvas.requestRenderAll();
+  }
+
+  private filterChange() {
+    const filters = fabric.Image.filters;
+    console.log("===546", filters);
+    // filters.swapColor = fabric.util.createClass({
+    //   type: "swapColor",
+    //   applyTo: function (canvasEl) {
+    //     var context = canvasEl.getContext("2d"),
+    //       imageData = context.getImageData(
+    //         0,
+    //         0,
+    //         canvasEl.width,
+    //         canvasEl.height
+    //       ),
+    //       data = imageData.data;
+
+    //     for (var i = 0, len = data.length; i < len; i += 4) {
+    //       data[i + 1] = 0;
+    //       data[i + 2] = 0;
+    //     }
+
+    //     context.putImageData(imageData, 0, 0);
+    //   },
+    // });
+
+    // fabric.Image.filters.swapColor.fromObject = function (object) {
+    //   return new fabric.Image.filters.swapColor(object);
+
+    //   // Tool.canvas.requestRenderAll();
+    // };
   }
 
   public onMouseDown(options): void {
-    const { e, pointer } = options;
-    const points1 = Tool.canvas.getPointer(e);
-    e.preventDefault();
-    const showPointer = getMousePos(e); //getTransformedPos(pointer);
-    const zoomPoint = getTransformedPos(showPointer);
-    const calcPoints = getMousePosition(e);
-    const show = {
-      x: calcPoints.x * 2,
-      y: calcPoints.y * 2,
-    };
+    if (Tool.toolType === "BUCKET") {
+      const { e, pointer } = options;
+      const points1 = Tool.canvas.getPointer(e);
+      e.preventDefault();
+      const showPointer = getMousePos(e); //getTransformedPos(pointer);
+      const zoomPoint = getTransformedPos(showPointer);
+      const calcPoints = getMousePosition(e);
+      console.log("==3", pointer);
+      const show = {
+        x: pointer.x * 2,
+        y: pointer.y * 2,
+      };
 
-    this.operateStart(show);
+      this.operateStart(show);
+    }
   }
 }
 

@@ -4,7 +4,7 @@ export const paint = [
   {
     key: "paint.tool",
     initialState: {
-      select: "ERASER",
+      select: "PEN",
     },
     reducer: (state: PaintState, action: any) => {
       const lastState = state.tool;

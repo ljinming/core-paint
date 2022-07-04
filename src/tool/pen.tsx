@@ -1,4 +1,5 @@
 import Tool from "./tool";
+import { fabric } from "fabric";
 
 class Pen extends Tool {
   //改变画笔的状态
@@ -10,9 +11,16 @@ class Pen extends Tool {
     }
   }
 
-  // onMouseDown = () => {
-  //   Tool.canvas!.freeDrawingBrush.width = value;
-  // };
+  onMouseDown = (options) => {
+    if (Tool.toolType === "PEN") {
+      console.log("==er5,options", options);
+      Tool.canvas.isDrawingMode = true;
+      //Tool.canvas.freeDrawingBrush.limitedToCanvasSize = true;
+      // const { e, pointer } = options;
+      // new fabric.CircleBrush().drawDot(pointer);
+    }
+    //Tool.canvas!.freeDrawingBrush.width = value;
+  };
 }
 
 export default Pen;

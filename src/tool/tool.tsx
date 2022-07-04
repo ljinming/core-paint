@@ -46,6 +46,8 @@ export default class Tool {
   static currentScale: number = 1;
   static _offset: { x: any; y: any };
   static canvasCurrent: any;
+  static toolType: string;
+  static filters: fabric.IAllFilters;
 
   // static setTool(
   //   toolType: string,
