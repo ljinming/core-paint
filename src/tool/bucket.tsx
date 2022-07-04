@@ -15,7 +15,6 @@ const efficentFloodFill = (
   ];
   const canvasWidth = ctx.canvas.width,
     canvasHeight = ctx.canvas.height;
-  console.log("===4", ctx, canvasWidth, canvasHeight);
   const startPos = (startY * canvasWidth + startX) * 4;
   const colorLayer = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
   const startColor: [number, number, number] = [
@@ -125,7 +124,6 @@ class Bucket extends Tool {
   };
 
   operateStart(pos) {
-    console.log("---2", pos, Bucket.color);
     const ctx = Tool.canvas.getContext();
     const color = parseColorString(Bucket.color);
     Promise.resolve().then(() => {
@@ -134,12 +132,18 @@ class Bucket extends Tool {
   }
 
   public onMouseDown(options): void {
-    console.log("bucket---onMouseDown", MouseEvent);
     const { e, pointer } = options;
+    const points1 = Tool.canvas.getPointer(e);
     e.preventDefault();
     const showPointer = getMousePos(e); //getTransformedPos(pointer);
     const zoomPoint = getTransformedPos(showPointer);
-    this.operateStart(pointer);
+    const calcPoints = getMousePosition(e);
+    const show = {
+      x: calcPoints.x * 2,
+      y: calcPoints.y * 2,
+    };
+
+    this.operateStart(show);
   }
 }
 

@@ -202,8 +202,6 @@ class Shape extends Tool {
   }
 
   onMouseDown(options): void {
-    console.log("=shape=options=345", options);
-
     if (Tool.canvas.isDrawingMode) {
       return;
     }
@@ -213,8 +211,6 @@ class Shape extends Tool {
     const showPointer = getMousePos(e); //getTransformedPos(pointer);
     const zoomPoint = getTransformedPos(showPointer);
     this.downPoints = zoomPoint; //鼠标按下的位置
-    console.log("===456", Tool.canvas);
-    console.log("==34", options);
     const calcPoints = getMousePosition(e);
 
     if (!this.selected) {

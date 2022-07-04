@@ -8,7 +8,6 @@ export const paint = [
     },
     reducer: (state: PaintState, action: any) => {
       const lastState = state.tool;
-      console.log("=lastState=", lastState);
       const { payload = {} } = action;
       return { ...lastState, ...payload };
     },

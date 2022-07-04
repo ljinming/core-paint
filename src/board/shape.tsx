@@ -34,14 +34,12 @@ function createPolyline(e, canvas) {
     }
   );
 
-  console.log("======3create", currentPolyline);
   canvas.add(currentLine);
 }
 
 // 修改当前正在创建的折线
 function changeCurrentPolyline(e, canvas) {
   const currentPoint = e.absolutePointer;
-  console.log("==4", e);
   let points = currentPolyline?.points || [];
 
   points.push({
@@ -91,7 +89,6 @@ function finishPolyline(e, canvas) {
 
 export const shapeMouseDown = (e, canvas) => {
   //鼠标按下 图形
-  console.log("===4", e);
   if (currentPolyline === null) {
     createPolyline(e, canvas);
   } else {

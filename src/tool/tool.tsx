@@ -13,7 +13,6 @@ export interface Pencil {
 //缩放后鼠标坐标
 export const getTransformedPos = (points: Point): Point => {
   let zoom = Number(Tool.canvas.getZoom());
-  console.log("===3", zoom);
   return {
     x: (points.x - Tool.canvas.viewportTransform[4]) / zoom,
     y: (points.y - Tool.canvas.viewportTransform[4]) / zoom,

@@ -20,10 +20,7 @@ class Eraser extends Tool {
   private getPixelColorOnCanvas = (pointer): void => {
     const ctx = Tool.canvas.getContext();
     const p = ctx.getImageData(pointer.x, pointer.y, 1, 1).data;
-    console.log("---3", ctx.getImageData(pointer.x, pointer.y, 1, 1));
-
     this.color = rgbToHex(p[0], p[1], p[2], p[3]);
-    console.log(this.color);
     Tool.canvas.freeDrawingBrush.color = this.color;
   };
 
@@ -35,19 +32,17 @@ class Eraser extends Tool {
   };
 
   public onMouseDown(options) {
-    console.log("=eraser=options=345", options);
-
-    // Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas);
-    // Tool.canvas!.freeDrawingBrush.width = 35;
-
     const { e, pointer } = options;
     const showPointer = getMousePos(e); //getTransformedPos(pointer);
     const zoomPoint = getTransformedPos(showPointer);
-    // const calcPoints = getMousePosition(e);
+    const calcPoints = getMousePosition(e);
     // // const showPoint = getTransformedPos(pointer);
     e.preventDefault();
-    console.log("==2", zoomPoint);
-    this.getPixelColorOnCanvas(zoomPoint);
+    const show = {
+      x: calcPoints.x * 2,
+      y: calcPoints.y * 2,
+    };
+    this.getPixelColorOnCanvas(show);
   }
   onMouseMove(options) {
     // Tool.canvas!.freeDrawingBrush.color = this.color;

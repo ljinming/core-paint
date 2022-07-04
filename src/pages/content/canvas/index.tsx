@@ -30,7 +30,6 @@ export default (props: CanvasProps) => {
     const canvasCurrent = canvasRef.current;
     const { width, height } = canvasBox.getBoundingClientRect();
     const { left, top } = canvasCurrent.getBoundingClientRect();
-    console.log("-canvasSize--2", canvasSize);
     //board.clearAll();
     if (canvasSize) {
       const showScale =
@@ -40,33 +39,34 @@ export default (props: CanvasProps) => {
       const canvas = new fabric.Canvas(canvasRef.current, {
         width: canvasSize.width, // 画布宽度
         height: canvasSize.height, // 画布高度
-        backgroundColor: backgroundColor, // 画布背景色
+        backgroundColor: backgroundColor || "#2d2d2d", // 画布背景色
         // isDrawingMode: true,
       });
       translatex = (width - canvasSize.width * showScale) / 2;
       translatey = (height - canvasSize.height * showScale) / 2;
-      Tool.currentScale = showScale;
-      Tool.canvas = canvas;
-      Tool.canvasCurrent = canvasCurrent;
       Tool._offset = {
         x: left,
         y: top,
       };
       if (imgSrc) {
-        // const { showScale = 1 } = other;
         fabric.Image.fromURL(
           imgSrc,
           (img) => {
-            // img.scale(showScale);
             img.selectable = false;
-            //canvas.add(img).renderAll();
-            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            img.evented = false;
+            canvas.add(img).renderAll();
+            //canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
           { crossOrigin: "anonymous" }
         );
       }
-      canvas.setZoom(showScale); // 设置画布缩放级别
-      //canvasCurrent.style.transform = `scale(${showScale})`;
+      //canvas.setZoom(showScale); // 设置画布缩放级别
+      canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
+      Tool.canvas = canvas;
+      Tool.canvasCurrent = canvasCurrent;
+      Tool.currentScale = showScale;
+      //  Tool.canvas.setZoom(showScale);
+
       setCanvas(canvas);
     }
   }, [canvasSize]);
@@ -87,7 +87,6 @@ export default (props: CanvasProps) => {
           break;
         case "SHAPE":
           //关闭绘画功能
-          console.log("--5");
           fabricCanvas.isDrawingMode = false;
           setManage(new Shape());
           break;
@@ -95,12 +94,12 @@ export default (props: CanvasProps) => {
           //fabricCanvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas);
           fabricCanvas.isDrawingMode = true;
           fabricCanvas.freeDrawingBrush.width = 10; // 设置画笔粗细为 10
-          // setManage(new Eraser());
+          setManage(new Eraser());
           //board.setIsDrawingMode(true);
           break;
         case "BUCKET":
           // T.freeDrawingBrush = false;
-          Tool.canvas.isDrawingMode = false;
+          fabricCanvas.isDrawingMode = false;
           setManage(new Bucket());
           //board.setIsDrawingMode(true);
           break;

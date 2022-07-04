@@ -26,7 +26,6 @@ const ShapeRight = (props: pencilProps) => {
 
   const handleChange = (type: string, value: string) => {
     board.setShowCanvas({ [type]: value });
-    console.log("==45", type, value);
     Shape.changeShapeType(type, value);
   };
 
