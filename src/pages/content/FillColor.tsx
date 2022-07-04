@@ -1,4 +1,5 @@
 import ColorPicker from "@/components/colorPicker";
+import { Bucket } from "@/tool";
 import { Board } from "@/board";
 
 interface FillColorProps {
@@ -13,6 +14,7 @@ const FillColor = (props: FillColorProps) => {
     //board.setShowCanvas({ [type]: value });
     board.fillColor = value;
     onChange(value);
+    Bucket.changeColor(value);
   };
 
   return (

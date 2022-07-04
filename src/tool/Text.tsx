@@ -1,4 +1,4 @@
-import { fabric } from "fabric-with-erasing";
+import { fabric } from "fabric";
 import Tool from "./tool";
 
 export class Text extends Tool {

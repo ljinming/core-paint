@@ -1,8 +1,8 @@
 import { Board } from "@/board";
-import { fabric } from "fabric-with-erasing";
+import { fabric } from "fabric";
 // import Tool from "@/board/tool/tool";
 // import Pen from "@/board/tool/pen";
-import { Tool, Pen, Shape, Eraser } from "@/tool";
+import { Tool, Pen, Shape, Eraser, Bucket } from "@/tool";
 import { useEffect, useRef, useState } from "react";
 import "./index.less";
 
@@ -30,6 +30,7 @@ export default (props: CanvasProps) => {
     const canvasCurrent = canvasRef.current;
     const { width, height } = canvasBox.getBoundingClientRect();
     const { left, top } = canvasCurrent.getBoundingClientRect();
+    console.log("-canvasSize--2", canvasSize);
     //board.clearAll();
     if (canvasSize) {
       const showScale =
@@ -42,7 +43,6 @@ export default (props: CanvasProps) => {
         backgroundColor: backgroundColor, // 画布背景色
         // isDrawingMode: true,
       });
-      canvas.setZoom(showScale); // 设置画布缩放级别
       translatex = (width - canvasSize.width * showScale) / 2;
       translatey = (height - canvasSize.height * showScale) / 2;
       Tool.currentScale = showScale;
@@ -58,13 +58,14 @@ export default (props: CanvasProps) => {
           imgSrc,
           (img) => {
             // img.scale(showScale);
-            // img.selectable = false;
+            img.selectable = false;
             //canvas.add(img).renderAll();
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
           { crossOrigin: "anonymous" }
         );
       }
+      canvas.setZoom(showScale); // 设置画布缩放级别
       //canvasCurrent.style.transform = `scale(${showScale})`;
       setCanvas(canvas);
     }
@@ -87,12 +88,20 @@ export default (props: CanvasProps) => {
         case "SHAPE":
           //关闭绘画功能
           console.log("--5");
-          //fabricCanvas.isDrawingMode = false;
+          fabricCanvas.isDrawingMode = false;
           setManage(new Shape());
           break;
         case "ERASER":
+          //fabricCanvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas);
           fabricCanvas.isDrawingMode = true;
-          setManage(new Eraser());
+          fabricCanvas.freeDrawingBrush.width = 10; // 设置画笔粗细为 10
+          // setManage(new Eraser());
+          //board.setIsDrawingMode(true);
+          break;
+        case "BUCKET":
+          // T.freeDrawingBrush = false;
+          Tool.canvas.isDrawingMode = false;
+          setManage(new Bucket());
           //board.setIsDrawingMode(true);
           break;
       }
@@ -163,7 +172,7 @@ export default (props: CanvasProps) => {
       fabricCanvas.on("mouse:dblclick", onDbClick);
 
       //缩放
-      fabricCanvas.on("mouse:wheel", onWheel);
+      //  fabricCanvas.on("mouse:wheel", onWheel);
 
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);

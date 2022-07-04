@@ -1,5 +1,5 @@
 import Tool, { getTransformedPos, getMousePos, getMousePosition } from "./tool";
-import { fabric } from "fabric-with-erasing";
+import { fabric } from "fabric";
 import { Point } from "./tool";
 
 class Shape extends Tool {
