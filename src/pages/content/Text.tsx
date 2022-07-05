@@ -2,6 +2,7 @@ import Sider from "@/components/sliderCard";
 import { Select } from "antd";
 import ColorPicker from "@/components/colorPicker";
 import board, { Board } from "@/board";
+import { CanvasText } from "@/tool";
 
 const { Option } = Select;
 
@@ -23,6 +24,7 @@ const textFamily = [
 const Text = (props: TextProps) => {
   const handleChange = (type, value) => {
     board.setTextStyle(type, value);
+    CanvasText.changeTextStyle(type, value);
   };
 
   return (

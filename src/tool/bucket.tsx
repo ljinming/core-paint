@@ -1,6 +1,7 @@
 import Tool, { getTransformedPos, getMousePosition, getMousePos } from "./tool";
 import { parseColorString } from "./colorChange";
 import { fabric } from "fabric";
+
 const efficentFloodFill = (
   ctx: CanvasRenderingContext2D,
   startX: number,
@@ -81,17 +82,18 @@ const efficentFloodFill = (
     }
   }
   //ColorMatrix(colorLayer);
-  const filter = new fabric.Image.filters.ColorMatrix();
+  // const filter = new fabric.Image.filters.ColorMatrix();
   //console.log("==3", filter);
   //filter.applyTo2d(ctx);
   //console.log("==4", colorLayer.data);
   //new fabric.Image.filters.ColorMatrix({ matrix: colorLayer.data });
 
   ctx.putImageData(colorLayer, 0, 0);
-  //Tool.canvas.renderAll.bind(Tool.canvas);
+  //Tool.canvas.drawControls(ctx);
+  Tool.canvas.renderAll.bind(Tool.canvas);
   // ctx.toDataURL();
   // filter.applyTo(colorLayer.toDataURL());
-  Tool.canvas.requestRenderAll.bind(Tool.canvas);
+  // Tool.canvas.renderTopLayer();
 };
 
 /**
@@ -137,20 +139,36 @@ class Bucket extends Tool {
   };
 
   operateStart(pos) {
+    console.log("--3", Tool.canvas);
     const ctx = Tool.canvas.getContext();
     const color = parseColorString(Bucket.color);
-    Promise.resolve().then(() => {
-      efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
-    });
+    efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
+    // Promise.resolve().then(() => {
+    //   efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
+    // });
 
-    //this.filterChange();
+    // const canvas2dBackend = new fabric.Canvas2dFilterBackend();
+    // fabric.filterBackend = canvas2dBackend;
+    //fabric.filterBackend = fabric.initFilterBackend();
+
+    this.filterChange(pos, color, ctx);
 
     // Tool.canvas.requestRenderAll();
   }
 
-  private filterChange() {
-    const filters = fabric.Image.filters;
-    console.log("===546", filters);
+  filterChange(pos, color, ctx) {
+    const obj = Tool.canvas.getObjects()[0];
+    console.log("===546", obj, Tool.img, Tool.canvas.getActiveObject());
+    const filter = new fabric.Image.filters["Redify"]({
+      pos,
+      fillColor: color,
+      ctx: ctx,
+    });
+    Tool.img.filters[0] = filter;
+    Tool.img.applyFilters();
+    Tool.canvas.renderAll();
+    // filters["Redify"]({ color: "333", nextColor: "35" });
+    // imgFilter.applyFilters();
     // filters.swapColor = fabric.util.createClass({
     //   type: "swapColor",
     //   applyTo: function (canvasEl) {
@@ -187,7 +205,6 @@ class Bucket extends Tool {
       const showPointer = getMousePos(e); //getTransformedPos(pointer);
       const zoomPoint = getTransformedPos(showPointer);
       const calcPoints = getMousePosition(e);
-      console.log("==3", pointer);
       const show = {
         x: pointer.x * 2,
         y: pointer.y * 2,

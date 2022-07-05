@@ -2,10 +2,10 @@ import { Board } from "@/board";
 import { fabric } from "fabric";
 // import Tool from "@/board/tool/tool";
 // import Pen from "@/board/tool/pen";
-import { Tool, Pen, Shape, Eraser, Bucket } from "@/tool";
+import { Tool, Pen, Shape, Eraser, Bucket, CanvasText } from "@/tool";
 import { useEffect, useRef, useState } from "react";
+import { efficentFloodFill } from "./utils";
 import "./index.less";
-import ToolType from "../ToolType";
 
 let translatex = 0;
 let translatey = 0;
@@ -14,6 +14,37 @@ let show_scale = 1;
 const scaleStep = 0.1;
 const maxScale = 6;
 const minScale = 0.1;
+const canvas2dBackend = new fabric.Canvas2dFilterBackend();
+fabric.filterBackend = canvas2dBackend;
+
+fabric.Image.filters["Redify"] = fabric.util.createClass(
+  fabric.Image.filters.BaseFilter,
+  {
+    type: "Redify",
+    applyTo: function (options) {
+      if (this.fillColor && this.pos) {
+        const newImageData = efficentFloodFill(
+          options.ctx,
+          this.pos.x,
+          this.pos.y,
+          this.fillColor
+        );
+        console.log("-5", newImageData);
+        if (newImageData) {
+          options.ctx.putImageData(newImageData, 0, 0);
+        }
+      }
+    },
+  }
+);
+
+//fabric.Image.filters.Grayscale.fromObject = fabric.Image.filters.BaseFilter;
+
+// fabric.Image.filters["Redify"].fromObject = function (object) {
+//   return new fabric.Image.filters["Redify"](object);
+// };
+fabric.Image.filters["Redify"].fromObject =
+  fabric.Image.filters.BaseFilter["fromObject"];
 
 interface CanvasProps {
   board: Board;
@@ -63,47 +94,23 @@ export default (props: CanvasProps) => {
             img.evented = false;
             //canvas.add(img).renderAll();
             // 图片加载完成之后，应用滤镜效果
+            // img.filters.push(new fabric.Image.filters.Grayscale());
             // img.filters.push(
-            //   new fabric.Image.filters.Sepia(),
-            //   new fabric.Image.filters.Brightness({ brightness: 100 })
+            //   new fabric.Image.filters["Redify"]({ fillColor: "test" })
             // );
-            //img.applyFilters(canvas.renderAll.bind(canvas));
+            //img.applyFilters();
             canvas.add(img).renderAll();
+            Tool.img = img;
             //canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
           { crossOrigin: "anonymous" }
         );
       }
+
       //fabric.BaseBrush.limitedToCanvasSize = true; // 当“ true”时，自由绘制被限制为画布大小。
 
-      /*test fabric*/
-      // fabric.Image.filters.Redify = fabric.util.createClass({
-      //   type: "Redify",
-      //   applyTo: function (canvasEl) {
-      //     var context = canvasEl.getContext("2d"),
-      //       imageData = context.getImageData(
-      //         0,
-      //         0,
-      //         canvasEl.width,
-      //         canvasEl.height
-      //       ),
-      //       data = imageData.data;
-
-      //     for (var i = 0, len = data.length; i < len; i += 4) {
-      //       data[i + 1] = 0;
-      //       data[i + 2] = 0;
-      //     }
-
-      //     context.putImageData(imageData, 0, 0);
-      //   },
-      // });
-
-      // fabric.Image.filters.Redify.fromObject = function (object) {
-      //   return new fabric.Image.filters.Redify(object);
-      // };
-      // console.log("===3", filters);
       //canvas.setZoom(showScale); // 设置画布缩放级别
-      //canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
+      //  canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
       Tool.canvasCurrent = canvasCurrent;
       Tool.canvas = canvas;
       Tool.currentScale = showScale;
@@ -130,7 +137,6 @@ export default (props: CanvasProps) => {
             Tool.canvas.isDrawingMode = true;
           }
           setManage(new Pen());
-          // new Pen();
           // board.setIsDrawingMode(true);
           // board.showPen();
           break;
@@ -140,16 +146,19 @@ export default (props: CanvasProps) => {
           setManage(new Shape());
           break;
         case "ERASER":
-          // Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas);
           Tool.canvas.isDrawingMode = true;
           // fabricCanvas.freeDrawingBrush.width = 10; // 设置画笔粗细为 10
           setManage(new Eraser());
           //board.setIsDrawingMode(true);
           break;
         case "BUCKET":
-          // T.freeDrawingBrush = false;
           Tool.canvas.isDrawingMode = false;
           setManage(new Bucket());
+          //board.setIsDrawingMode(true);
+          break;
+        case "TEXT":
+          Tool.canvas.isDrawingMode = false;
+          setManage(new CanvasText());
           //board.setIsDrawingMode(true);
           break;
       }
@@ -174,6 +183,7 @@ export default (props: CanvasProps) => {
   };
 
   const onSelected = (options) => {
+    console.log("==435", options);
     if (manager) {
       manager.onSelected(options);
     }
@@ -379,3 +389,6 @@ export default (props: CanvasProps) => {
     </div>
   );
 };
+function fillColor(ctx: any, x: any, y: any, fillColor: any) {
+  throw new Error("Function not implemented.");
+}

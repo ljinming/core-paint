@@ -48,6 +48,7 @@ export default class Tool {
   static canvasCurrent: any;
   static toolType: string;
   static filters: fabric.IAllFilters;
+  static img: fabric.Image;
 
   // static setTool(
   //   toolType: string,
