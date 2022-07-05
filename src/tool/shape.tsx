@@ -217,9 +217,9 @@ class Shape extends Tool {
     if (!this.selected) {
       if (shapeType === "RHOMBUS") {
         if (!this.shapeCurrent) {
-          this.createShape(zoomPoint);
+          this.createShape(calcPoints);
         } else {
-          this.changeShape(zoomPoint);
+          this.changeShape(calcPoints);
         }
       } else if (!this.shapeCurrent) {
         this.createShape(calcPoints);

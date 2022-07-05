@@ -49,6 +49,7 @@ export default class Tool {
   static toolType: string;
   static filters: fabric.IAllFilters;
   static img: fabric.Image;
+  static transform: { translatex: number; translatey: number };
 
   // static setTool(
   //   toolType: string,

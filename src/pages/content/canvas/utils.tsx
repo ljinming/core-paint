@@ -13,6 +13,7 @@ export const efficentFloodFill = (
   ];
   const canvasWidth = ctx.canvas.width,
     canvasHeight = ctx.canvas.height;
+  console.log("==435", canvasWidth, canvasHeight, startX, startY);
   const startPos = (startY * canvasWidth + startX) * 4;
   const colorLayer = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
   const startColor: [number, number, number] = [
@@ -21,13 +22,14 @@ export const efficentFloodFill = (
     colorLayer.data[startPos + 2],
   ];
   const updatedPoint: Record<string | number, boolean> = {};
-
+  console.log("===45", startColor, fillColor);
   if (
     startColor[0] === fillColor[0] &&
     startColor[1] === fillColor[1] &&
     startColor[2] === fillColor[2]
-  )
+  ) {
     return undefined;
+  }
   while (pixelStack.length > 0) {
     const newPos = pixelStack.pop() as [number, number];
     const x = newPos[0];
@@ -76,7 +78,8 @@ export const efficentFloodFill = (
       pixelPos += canvasWidth * 4;
     }
   }
-  ctx.putImageData(colorLayer, 0, 0);
+  return colorLayer;
+  // ctx.putImageData(colorLayer, 0, 0);
 };
 
 /*color 对比*/

@@ -29,22 +29,22 @@ fabric.Image.filters["Redify"] = fabric.util.createClass(
           this.pos.y,
           this.fillColor
         );
-        console.log("-5", newImageData);
+        console.log("===4", newImageData);
         if (newImageData) {
           options.ctx.putImageData(newImageData, 0, 0);
         }
+        this.fillColor = undefined;
+        this.pos = undefined;
       }
     },
   }
 );
 
-//fabric.Image.filters.Grayscale.fromObject = fabric.Image.filters.BaseFilter;
-
-// fabric.Image.filters["Redify"].fromObject = function (object) {
-//   return new fabric.Image.filters["Redify"](object);
-// };
-fabric.Image.filters["Redify"].fromObject =
-  fabric.Image.filters.BaseFilter["fromObject"];
+fabric.Image.filters["Redify"].fromObject = function (object) {
+  return new fabric.Image.filters["Redify"](object);
+};
+// fabric.Image.filters["Redify"].fromObject =
+//   fabric.Image.filters.BaseFilter["fromObject"];
 
 interface CanvasProps {
   board: Board;
@@ -94,14 +94,14 @@ export default (props: CanvasProps) => {
             img.evented = false;
             //canvas.add(img).renderAll();
             // 图片加载完成之后，应用滤镜效果
-            // img.filters.push(new fabric.Image.filters.Grayscale());
-            // img.filters.push(
-            //   new fabric.Image.filters["Redify"]({ fillColor: "test" })
-            // );
-            //img.applyFilters();
-            canvas.add(img).renderAll();
+            //img.filters.push(new fabric.Image.filters.Grayscale());
+            img.filters.push(
+              new fabric.Image.filters["Redify"]({ fillColor: "test" })
+            );
+            img.applyFilters();
+            //canvas.add(img).renderAll();
             Tool.img = img;
-            //canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
           { crossOrigin: "anonymous" }
         );
@@ -110,15 +110,21 @@ export default (props: CanvasProps) => {
       //fabric.BaseBrush.limitedToCanvasSize = true; // 当“ true”时，自由绘制被限制为画布大小。
 
       //canvas.setZoom(showScale); // 设置画布缩放级别
-      //  canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
+      Tool.transform = {
+        translatex,
+        translatey,
+      };
+      // canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
       Tool.canvasCurrent = canvasCurrent;
       Tool.canvas = canvas;
       Tool.currentScale = showScale;
       show_scale = showScale;
-      //canvas.freeDrawingBrush.limitedToCanvasSize = true;
+      canvas.freeDrawingBrush["limitedToCanvasSize"] = true;
       canvas.freeDrawingBrush.strokeLineJoin = "miter";
 
       Tool.canvas.setZoom(showScale);
+      // Tool.canvas.setWidth(canvasSize.width);
+      // Tool.canvas.setHeight(canvasSize.width);
 
       setCanvas(canvas);
     }
@@ -329,6 +335,11 @@ export default (props: CanvasProps) => {
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
+      fabricCanvas.on("after:render", (options) => {
+        console.log("==546", options);
+        fabricCanvas.calcOffset();
+      });
+
       // fabricCanvas.on("object:moving", function (e) {
       //   var obj = e.target;
       //   console.log("==r56", obj);

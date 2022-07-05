@@ -81,19 +81,10 @@ const efficentFloodFill = (
       pixelPos += canvasWidth * 4;
     }
   }
-  //ColorMatrix(colorLayer);
-  // const filter = new fabric.Image.filters.ColorMatrix();
-  //console.log("==3", filter);
-  //filter.applyTo2d(ctx);
-  //console.log("==4", colorLayer.data);
-  //new fabric.Image.filters.ColorMatrix({ matrix: colorLayer.data });
-
   ctx.putImageData(colorLayer, 0, 0);
-  //Tool.canvas.drawControls(ctx);
   Tool.canvas.renderAll.bind(Tool.canvas);
-  // ctx.toDataURL();
-  // filter.applyTo(colorLayer.toDataURL());
-  // Tool.canvas.renderTopLayer();
+  // const url = Tool.canvas.toDataURL.bind(Tool.canvas)();
+  // console.log("==e", url);
 };
 
 /**
@@ -126,8 +117,6 @@ const fillPixel = (
   colorLayer.data[pixelPos] = color[0];
   colorLayer.data[pixelPos + 1] = color[1];
   colorLayer.data[pixelPos + 2] = color[2];
-
-  //return colorLayer;
   return colorLayer;
 };
 
@@ -142,76 +131,48 @@ class Bucket extends Tool {
     console.log("--3", Tool.canvas);
     const ctx = Tool.canvas.getContext();
     const color = parseColorString(Bucket.color);
-    efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
-    // Promise.resolve().then(() => {
-    //   efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
-    // });
+    // efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
+    Promise.resolve().then(() => {
+      efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
+    });
 
     // const canvas2dBackend = new fabric.Canvas2dFilterBackend();
     // fabric.filterBackend = canvas2dBackend;
     //fabric.filterBackend = fabric.initFilterBackend();
 
-    this.filterChange(pos, color, ctx);
+    //this.filterChange(pos, color);
 
     // Tool.canvas.requestRenderAll();
   }
 
-  filterChange(pos, color, ctx) {
+  filterChange(pos, color) {
     const obj = Tool.canvas.getObjects()[0];
     console.log("===546", obj, Tool.img, Tool.canvas.getActiveObject());
     const filter = new fabric.Image.filters["Redify"]({
       pos,
-      fillColor: color,
-      ctx: ctx,
+      fillColor: [color.r, color.g, color.b],
     });
     Tool.img.filters[0] = filter;
     Tool.img.applyFilters();
-    Tool.canvas.renderAll();
-    // filters["Redify"]({ color: "333", nextColor: "35" });
-    // imgFilter.applyFilters();
-    // filters.swapColor = fabric.util.createClass({
-    //   type: "swapColor",
-    //   applyTo: function (canvasEl) {
-    //     var context = canvasEl.getContext("2d"),
-    //       imageData = context.getImageData(
-    //         0,
-    //         0,
-    //         canvasEl.width,
-    //         canvasEl.height
-    //       ),
-    //       data = imageData.data;
-
-    //     for (var i = 0, len = data.length; i < len; i += 4) {
-    //       data[i + 1] = 0;
-    //       data[i + 2] = 0;
-    //     }
-
-    //     context.putImageData(imageData, 0, 0);
-    //   },
-    // });
-
-    // fabric.Image.filters.swapColor.fromObject = function (object) {
-    //   return new fabric.Image.filters.swapColor(object);
-
-    //   // Tool.canvas.requestRenderAll();
-    // };
+    Tool.canvas.requestRenderAll();
   }
 
   public onMouseDown(options): void {
-    if (Tool.toolType === "BUCKET") {
-      const { e, pointer } = options;
-      const points1 = Tool.canvas.getPointer(e);
-      e.preventDefault();
-      const showPointer = getMousePos(e); //getTransformedPos(pointer);
-      const zoomPoint = getTransformedPos(showPointer);
-      const calcPoints = getMousePosition(e);
-      const show = {
-        x: pointer.x * 2,
-        y: pointer.y * 2,
-      };
-
-      this.operateStart(show);
+    if (Tool.toolType !== "BUCKET") {
+      return;
     }
+    const { e, pointer } = options;
+    const points1 = Tool.canvas.getPointer(e);
+    e.preventDefault();
+    const showPointer = getMousePos(e); //getTransformedPos(pointer);
+    const zoomPoint = getTransformedPos(showPointer);
+    //const calcPoints = getMousePosition(e);
+    const show = {
+      x: zoomPoint.x * 2,
+      y: zoomPoint.y * 2,
+    };
+
+    this.operateStart(show);
   }
 }
 
