@@ -19,7 +19,8 @@ const EraserRight = (props: EraserProps) => {
     <>
       <Sider
         title="Eraser Thickness"
-        options={{ max: 20, min: 1 }}
+        options={{ max: 200, min: 1 }}
+        defaultValue={20}
         onChange={(value: number) => handleChange("lineWidth", value)}
       />
       {/* <ColorPicker onChange={(color: string) => handleChange("color", color)} /> */}

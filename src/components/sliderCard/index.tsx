@@ -5,18 +5,20 @@ interface sliderProps {
   title?: string;
   value?: number;
   options?: any;
+  defaultValue?: number;
   onChange?: (value: number) => void;
 }
 
 export default (props: sliderProps) => {
-  const { title, options = {}, value, onChange } = props;
+  const { title, options = {}, value, defaultValue, onChange } = props;
   return (
     <div className="silderCard">
       {title && <h3>{title}</h3>}
       <div className="show-silder">
         <Slider
           className="slider-step"
-          defaultValue={2}
+          defaultValue={defaultValue || 2}
+          value={value}
           {...options}
           onChange={onChange}
         />

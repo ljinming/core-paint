@@ -20,10 +20,14 @@ interface ContentProps {
     width: number;
     height: number;
   };
+  straw: {
+    strawFlag: boolean;
+    strawColor: string;
+  };
 }
 
 const Content = (props: ContentProps) => {
-  const { pre, tool, imgSrc, backgroundColor, canvasSize } = props;
+  const { pre, tool, imgSrc, backgroundColor, canvasSize, straw } = props;
   const [fillColor, setFillColor] = useState(board.fillColor);
   // const tool = useSelector((state: RootState) => {
   //   console.log("select---", state);
@@ -65,6 +69,7 @@ const Content = (props: ContentProps) => {
           tool={tool}
           imgSrc={imgSrc}
           board={Board}
+          straw={straw}
           backgroundColor={backgroundColor}
         />
       </div>
@@ -76,6 +81,7 @@ const Content = (props: ContentProps) => {
 function mapStateToProps(state: RootState) {
   return {
     tool: state.paint.tool.select,
+    straw: state.paint.straw,
   };
 }
 

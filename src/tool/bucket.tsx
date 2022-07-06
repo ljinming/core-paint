@@ -1,4 +1,9 @@
-import Tool, { getTransformedPos, getMousePosition, getMousePos } from "./tool";
+import Tool, {
+  getTransformedPos,
+  getMousePosition,
+  getMousePos,
+  setStrawColor,
+} from "./tool";
 import { parseColorString } from "./colorChange";
 import { fabric } from "fabric";
 
@@ -128,7 +133,7 @@ class Bucket extends Tool {
   };
 
   filterChange(pos) {
-    const color = parseColorString(Bucket.color);
+    const color = parseColorString(Tool.strawColor || Bucket.color);
     const filter = new fabric.Image.filters["ChangeColorFilter"]({
       pos,
       fillColor: [color.r, color.g, color.b],
@@ -144,14 +149,16 @@ class Bucket extends Tool {
     }
     const { e, pointer } = options;
     e.preventDefault();
+    if (Tool.strawFlag) {
+      const show = {
+        x: pointer.x * 2,
+        y: pointer.y * 2,
+      };
+      setStrawColor(show);
+      return;
+    }
     const showPointer = getMousePos(e); //getTransformedPos(pointer);
     const zoomPoint = getTransformedPos(showPointer);
-    //const calcPoints = getMousePosition(e);
-    const show = {
-      x: pointer.x * 2,
-      y: pointer.y * 2,
-    };
-
     this.filterChange(zoomPoint);
   }
 }

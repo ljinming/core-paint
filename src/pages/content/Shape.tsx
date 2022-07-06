@@ -27,6 +27,9 @@ const ShapeRight = (props: pencilProps) => {
   const handleChange = (type: string, value: string) => {
     board.setShowCanvas({ [type]: value });
     Shape.changeShapeType(type, value);
+    if (type === "shapeType") {
+      setShow(value);
+    }
   };
 
   const shapes = [
@@ -55,41 +58,41 @@ const ShapeRight = (props: pencilProps) => {
       img: shape_triangle,
       title: "三角形",
     },
-    {
-      type: "PENTAGON",
-      img: shape_pentagon,
-      title: "五边形",
-    },
-    {
-      type: "SEXANGLE",
-      img: shape_sexangle,
-      title: "六边形",
-    },
-    {
-      type: "ARROW_TOP",
-      img: shape_arrowtop,
-      title: "上箭头",
-    },
-    {
-      type: "ARROW_RIGHT",
-      img: shape_arrowright,
-      title: "右箭头",
-    },
-    {
-      type: "ARROW_DOWN",
-      img: shape_arrowdown,
-      title: "下箭头",
-    },
-    {
-      type: "ARROW_LEFT",
-      img: shape_arrowleft,
-      title: "左箭头",
-    },
-    {
-      type: "FOUR_STAR",
-      img: shape_fourstar,
-      title: "四角星",
-    },
+    // {
+    //   type: "PENTAGON",
+    //   img: shape_pentagon,
+    //   title: "五边形",
+    // },
+    // {
+    //   type: "SEXANGLE",
+    //   img: shape_sexangle,
+    //   title: "六边形",
+    // },
+    // {
+    //   type: "ARROW_TOP",
+    //   img: shape_arrowtop,
+    //   title: "上箭头",
+    // },
+    // {
+    //   type: "ARROW_RIGHT",
+    //   img: shape_arrowright,
+    //   title: "右箭头",
+    // },
+    // {
+    //   type: "ARROW_DOWN",
+    //   img: shape_arrowdown,
+    //   title: "下箭头",
+    // },
+    // {
+    //   type: "ARROW_LEFT",
+    //   img: shape_arrowleft,
+    //   title: "左箭头",
+    // },
+    // {
+    //   type: "FOUR_STAR",
+    //   img: shape_fourstar,
+    //   title: "四角星",
+    // },
   ];
 
   return (

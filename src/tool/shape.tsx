@@ -1,4 +1,9 @@
-import Tool, { getTransformedPos, getMousePos, getMousePosition } from "./tool";
+import Tool, {
+  getTransformedPos,
+  getMousePos,
+  getMousePosition,
+  setStrawColor,
+} from "./tool";
 import { fabric } from "fabric";
 import { Point } from "./tool";
 
@@ -21,6 +26,11 @@ class Shape extends Tool {
     this.downPoints = undefined;
     this.upPoints = undefined;
     this.selected = false;
+    this.init();
+  }
+
+  init() {
+    Tool.canvas.isDrawingMode = false;
   }
 
   static changeShapeType(type: string, value: string) {
@@ -31,7 +41,7 @@ class Shape extends Tool {
     const { shapeType, border, color } = Shape.shapeObject;
     const options = {
       strokeDashArray: border === "SOLID" ? [0, 0] : [3, 3],
-      stroke: color, // 笔触颜色
+      stroke: Tool.strawColor || color, // 笔触颜色
     };
     switch (shapeType) {
       case "LINE":
@@ -177,7 +187,7 @@ class Shape extends Tool {
     const { shapeType, border, color } = Shape.shapeObject;
     const options = {
       strokeDashArray: border === "SOLID" ? [0, 0] : [3, 3],
-      stroke: color, // 笔触颜色
+      stroke: Tool.strawColor || color, // 笔触颜色
     };
     let points = this.shapeCurrent.points;
     if (points[points.length - 1]) {
@@ -205,12 +215,21 @@ class Shape extends Tool {
     if (Tool.toolType !== "SHAPE") {
       return;
     }
-
-    const { e } = options;
-    const { shapeType } = Shape.shapeObject;
-    e.preventDefault();
+    const { e, pointer } = options;
     const showPointer = getMousePos(e); //getTransformedPos(pointer);
     const zoomPoint = getTransformedPos(showPointer);
+    if (Tool.strawFlag) {
+      const show = {
+        x: pointer.x * 2,
+        y: pointer.y * 2,
+      };
+      setStrawColor(show);
+      return;
+    }
+
+    const { shapeType } = Shape.shapeObject;
+    e.preventDefault();
+
     this.downPoints = zoomPoint; //鼠标按下的位置
     const calcPoints = getMousePosition(e);
 
@@ -230,6 +249,7 @@ class Shape extends Tool {
   public onMouseMove(options): void {
     if (Tool.toolType === "SHAPE") {
       const { e } = options;
+      e.preventDefault();
       const { shapeType } = Shape.shapeObject;
       const showPointer = getMousePos(e); //鼠标按下位置
       const zoomPoint = getTransformedPos(showPointer); //缩放后的位置
@@ -247,6 +267,9 @@ class Shape extends Tool {
   }
 
   public onMouseUp(options): void {
+    if (Tool.toolType !== "SHAPE") {
+      return;
+    }
     const { e } = options;
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
@@ -261,6 +284,9 @@ class Shape extends Tool {
   }
 
   public onDbClick(options): void {
+    if (Tool.toolType !== "SHAPE") {
+      return;
+    }
     const { shapeType } = Shape.shapeObject;
     const { e, pointer } = options;
     const showPointer = getTransformedPos(pointer);
@@ -271,9 +297,15 @@ class Shape extends Tool {
   }
 
   public onSelected(options): void {
+    if (Tool.toolType !== "SHAPE") {
+      return;
+    }
     this.selected = true;
   }
   public onCancelSelected(options): void {
+    if (Tool.toolType !== "SHAPE") {
+      return;
+    }
     this.selected = false;
   }
 }

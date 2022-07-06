@@ -51,13 +51,17 @@ interface CanvasProps {
   imgSrc?: string;
   tool: string;
   id?: string;
+  straw: {
+    strawFlag: boolean;
+    strawColor: string;
+  };
 }
 export default (props: CanvasProps) => {
   const canvasRef = useRef(null);
   const canvasBoxRef = useRef(null);
   const [manager, setManage] = useState<Tool>();
   const [fabricCanvas, setCanvas] = useState<fabric.Canvas>(null);
-  const { canvasSize, imgSrc, backgroundColor, tool, id, board } = props;
+  const { canvasSize, imgSrc, backgroundColor, tool, id, board, straw } = props;
   useEffect(() => {
     const canvasBox = canvasBoxRef.current;
     const canvasCurrent = canvasRef.current;
@@ -73,14 +77,17 @@ export default (props: CanvasProps) => {
         width: canvasSize.width, // 画布宽度
         height: canvasSize.height, // 画布高度
         backgroundColor: backgroundColor || "#2d2d2d", // 画布背景色
-        isDrawingMode: true,
+        // isDrawingMode: true,
       });
+      Tool.canvas = canvas;
+      canvas.setCursor("default");
       translatex = (width - canvasSize.width * showScale) / 2;
       translatey = (height - canvasSize.height * showScale) / 2;
       Tool._offset = {
         x: left,
         y: top,
       };
+      setManage(new Pen());
       if (imgSrc) {
         fabric.Image.fromURL(
           imgSrc,
@@ -109,7 +116,6 @@ export default (props: CanvasProps) => {
       };
       // canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
       Tool.canvasCurrent = canvasCurrent;
-      Tool.canvas = canvas;
       Tool.currentScale = showScale;
       show_scale = showScale;
       canvas.freeDrawingBrush["limitedToCanvasSize"] = true;
@@ -126,18 +132,11 @@ export default (props: CanvasProps) => {
   useEffect(() => {
     board.setTool(tool);
     Tool.toolType = tool;
-
     if (fabricCanvas) {
-      //Tool.canvas = fabricCanvas;
       switch (tool) {
         case "PEN":
           // 开启绘画功能
-          if (!fabricCanvas.isDrawingMode) {
-            Tool.canvas.isDrawingMode = true;
-          }
           setManage(new Pen());
-          // board.setIsDrawingMode(true);
-          // board.showPen();
           break;
         case "SHAPE":
           //关闭绘画功能
@@ -392,6 +391,3 @@ export default (props: CanvasProps) => {
     </div>
   );
 };
-function fillColor(ctx: any, x: any, y: any, fillColor: any) {
-  throw new Error("Function not implemented.");
-}

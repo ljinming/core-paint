@@ -56,7 +56,8 @@ const Text = (props: TextProps) => {
       <div className="font">
         <Sider
           title="Font Size"
-          options={{ max: 72, min: 12 }}
+          options={{ max: 720, min: 12 }}
+          defaultValue={72}
           onChange={(value: number) => handleChange("fontSize", value)}
         />
       </div>

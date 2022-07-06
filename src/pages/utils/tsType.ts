@@ -3,3 +3,7 @@ export interface toolItem {
     title: string,
     icon: string,
 }
+
+export const getRandomColor = () => { 
+    
+}

@@ -1,6 +1,6 @@
-export interface PencilState {
-  fontSize: number;
-  color: string;
+export interface StrawState {
+  strawFlag: boolean;
+  strawColor: string;
 }
 
 export interface ToolState {
@@ -8,7 +8,7 @@ export interface ToolState {
 }
 
 export interface PaintState {
-  pencil: PencilState;
+  straw: StrawState;
   tool: ToolState;
 }
 

@@ -20,10 +20,14 @@ const Pencil = (props: pencilProps) => {
     <>
       <Sider
         title="Brush thickness"
-        options={{ max: 20, min: 1 }}
+        options={{ max: 200, min: 1 }}
+        defaultValue={20}
         onChange={(value: number) => handleChange("lineWidth", value)}
       />
-      <ColorPicker onChange={(color: string) => handleChange("color", color)} />
+      <ColorPicker
+        color={Pen.color}
+        onChange={(color: string) => handleChange("color", color)}
+      />
     </>
   );
 };
