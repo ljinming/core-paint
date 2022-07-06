@@ -68,7 +68,6 @@ const Content = (props: ContentProps) => {
           canvasSize={canvasSize}
           tool={tool}
           imgSrc={imgSrc}
-          board={Board}
           straw={straw}
           backgroundColor={backgroundColor}
         />

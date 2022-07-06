@@ -1,6 +1,7 @@
 import { getToolIcon } from "../utils/tool";
 import board from "@/board";
 import Board from "@/board";
+import { Tool } from "@/tool";
 
 interface HeaderProps {
   pre?: string;
@@ -9,13 +10,17 @@ interface HeaderProps {
 const handleChange = (type: string) => {
   switch (type) {
     case "clearAll":
-      board.clearAll();
+      Tool.clearAll();
+      //board.clearAll();
       break;
     case "undo":
-      board.tapHistoryBtn(-1);
+      console.log("--435");
+      Tool.tapHistoryBtn(-1);
+      //board.tapHistoryBtn(-1);
       break;
     case "redo":
-      board.tapHistoryBtn(1);
+      Tool.tapHistoryBtn(1);
+      // board.tapHistoryBtn(1);
       break;
   }
 };

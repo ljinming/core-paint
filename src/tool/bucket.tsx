@@ -127,10 +127,18 @@ const fillPixel = (
 
 class Bucket extends Tool {
   static color: string = "transparent";
+  constructor() {
+    super();
+    this.init();
+  }
 
   static changeColor = (color) => {
     this.color = color;
   };
+
+  init() {
+    Tool.canvas.isDrawingMode = false;
+  }
 
   filterChange(pos) {
     const color = parseColorString(Tool.strawColor || Bucket.color);

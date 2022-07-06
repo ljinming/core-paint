@@ -1,7 +1,4 @@
-import { Board } from "@/board";
 import { fabric } from "fabric";
-// import Tool from "@/board/tool/tool";
-// import Pen from "@/board/tool/pen";
 import { Tool, Pen, Shape, Eraser, Bucket, CanvasText } from "@/tool";
 import { useEffect, useRef, useState } from "react";
 import { efficentFloodFill } from "./utils";
@@ -9,7 +6,6 @@ import "./index.less";
 
 let translatex = 0;
 let translatey = 0;
-
 let show_scale = 1;
 const scaleStep = 0.1;
 const maxScale = 6;
@@ -42,7 +38,6 @@ fabric.Image.filters["ChangeColorFilter"].fromObject = function (object) {
 };
 
 interface CanvasProps {
-  board: Board;
   backgroundColor?: string;
   canvasSize: {
     width: number;
@@ -61,13 +56,12 @@ export default (props: CanvasProps) => {
   const canvasBoxRef = useRef(null);
   const [manager, setManage] = useState<Tool>();
   const [fabricCanvas, setCanvas] = useState<fabric.Canvas>(null);
-  const { canvasSize, imgSrc, backgroundColor, tool, id, board, straw } = props;
+  const { canvasSize, imgSrc, backgroundColor, tool, id, straw } = props;
   useEffect(() => {
     const canvasBox = canvasBoxRef.current;
     const canvasCurrent = canvasRef.current;
     const { width, height } = canvasBox.getBoundingClientRect();
     const { left, top } = canvasCurrent.getBoundingClientRect();
-    //board.clearAll();
     if (canvasSize) {
       const showScale =
         Math.min(width, height) /
@@ -99,17 +93,13 @@ export default (props: CanvasProps) => {
             //img.filters.push(new fabric.Image.filters.Grayscale());
             img.filters.push(new fabric.Image.filters["ChangeColorFilter"]());
             img.applyFilters();
-            canvas.add(img).renderAll();
+            //canvas.add(img).renderAll();
             Tool.img = img;
-            //canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
           { crossOrigin: "anonymous" }
         );
       }
-
-      //fabric.BaseBrush.limitedToCanvasSize = true; // 当“ true”时，自由绘制被限制为画布大小。
-
-      //canvas.setZoom(showScale); // 设置画布缩放级别
       Tool.transform = {
         translatex,
         translatey,
@@ -124,13 +114,11 @@ export default (props: CanvasProps) => {
       Tool.canvas.setZoom(showScale);
       // Tool.canvas.setWidth(canvasSize.width);
       // Tool.canvas.setHeight(canvasSize.width);
-
       setCanvas(canvas);
     }
   }, [canvasSize]);
 
   useEffect(() => {
-    board.setTool(tool);
     Tool.toolType = tool;
     if (fabricCanvas) {
       switch (tool) {
@@ -140,23 +128,17 @@ export default (props: CanvasProps) => {
           break;
         case "SHAPE":
           //关闭绘画功能
-          Tool.canvas.isDrawingMode = false;
           setManage(new Shape());
           break;
         case "ERASER":
-          Tool.canvas.freeDrawingBrush.color = "transparent";
           setManage(new Eraser());
-          //board.setIsDrawingMode(true);
           break;
         case "BUCKET":
-          Tool.canvas.isDrawingMode = false;
           setManage(new Bucket());
-          //board.setIsDrawingMode(true);
           break;
         case "TEXT":
           Tool.canvas.isDrawingMode = false;
           setManage(new CanvasText());
-          //board.setIsDrawingMode(true);
           break;
       }
     }
@@ -312,6 +294,12 @@ export default (props: CanvasProps) => {
     );
   };
 
+  // const onAfterRender = (options) => {
+  //   // if (Tool.onAfterRender) {
+  //   //   Tool.onAfterRender(options);
+  //   // }
+  // };
+
   useEffect(() => {
     if (fabricCanvas) {
       fabricCanvas.on("mouse:down", onMouseDown);
@@ -326,50 +314,7 @@ export default (props: CanvasProps) => {
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
-      fabricCanvas.on("after:render", (options) => {
-        console.log("after:render==546", options);
-        fabricCanvas.calcOffset();
-      });
-
-      // fabricCanvas.on("object:moving", function (e) {
-      //   var obj = e.target;
-      //   console.log("==r56", obj);
-      //   // if object is too big ignore
-      //   // if (
-      //   //   obj.currentHeight > obj.canvas.height ||
-      //   //   obj.currentWidth > obj.canvas.width
-      //   // ) {
-      //   //   return;
-      //   // }
-      //   obj.setCoords();
-      //   // top-left  corner
-      //   if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
-      //     obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
-      //     obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
-      //   }
-      //   // bot-right corner
-      //   if (
-      //     obj.getBoundingRect().top + obj.getBoundingRect().height >
-      //       obj.canvas.height ||
-      //     obj.getBoundingRect().left + obj.getBoundingRect().width >
-      //       obj.canvas.width
-      //   ) {
-      //     obj.top = Math.min(
-      //       obj.top,
-      //       obj.canvas.height -
-      //         obj.getBoundingRect().height +
-      //         obj.top -
-      //         obj.getBoundingRect().top
-      //     );
-      //     obj.left = Math.min(
-      //       obj.left,
-      //       obj.canvas.width -
-      //         obj.getBoundingRect().width +
-      //         obj.left -
-      //         obj.getBoundingRect().left
-      //     );
-      //   }
-      // });
+      // fabricCanvas.on("after:render", onAfterRender);
     }
   }, [
     fabricCanvas,

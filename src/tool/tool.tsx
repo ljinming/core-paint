@@ -78,6 +78,39 @@ export default class Tool {
   static transform: { translatex: number; translatey: number };
   static strawColor: string;
   static strawFlag: boolean;
+  static canvasObj = [];
+
+  // 撤销 或 还原
+  static tapHistoryBtn(flag) {
+    if (this.canvas) {
+      if (flag < 0 && this.canvasObj.length < 10) {
+        const removeList =
+          this.canvas.getObjects().filter((c) => c.width) || [];
+        const tagCanvas = removeList[removeList.length - 1];
+        this.canvasObj.push(tagCanvas);
+        this.canvas.remove(tagCanvas);
+      } else {
+        //回到撤回前一步
+        const current = this.canvasObj.pop();
+        if (current) {
+          this.canvas.add(current);
+        }
+      }
+    }
+  }
+
+  //清空画布
+  static clearAll() {
+    // 获取画布中的所有对象
+    if (this.canvas) {
+      let children = this.canvas.getObjects();
+      console.log("children", children);
+      if (children.length > 0) {
+        // 移除所有对象
+        this.canvas.remove(...children);
+      }
+    }
+  }
 
   public onMouseDown(options): void {
     //

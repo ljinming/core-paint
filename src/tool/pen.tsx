@@ -1,6 +1,7 @@
 import Tool, { getRandomColor, setStrawColor } from "./tool";
 import cursorPen from "@/assets/icon/cursorPen.jpg";
 import straw from "@/assets/icon/straw.jpg";
+import { fabric } from "fabric";
 
 class Pen extends Tool {
   static color: string = getRandomColor();
@@ -11,10 +12,15 @@ class Pen extends Tool {
     this.init();
   }
 
+  //fabric.BaseBrush.limitedToCanvasSize = true
   init() {
     console.log("pen init", Tool.strawColor);
+    // 设置自由绘画模式画笔类型为 铅笔类型
+    Tool.canvas.freeDrawingBrush = new fabric.PencilBrush(Tool.canvas);
+    //  Tool.canvas.freeDrawingBrush["limitedToCanvasSize"] = true;
+    // Tool.canvas.freeDrawingBrush = new fabric.BaseBrush();
     Tool.canvas.freeDrawingBrush.width = Pen.lineWidth;
-
+    // Tool.canvas.BaseBrush.limitedToCanvasSize = Boolean;
     if (!Tool.canvas.isDrawingMode) {
       Tool.canvas.isDrawingMode = true;
     }
