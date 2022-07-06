@@ -1,5 +1,5 @@
 export const efficentFloodFill = (
-  ctx: CanvasRenderingContext2D,
+  imageData: ImageData,
   startX: number,
   startY: number,
   fillColor: [number, number, number]
@@ -11,24 +11,22 @@ export const efficentFloodFill = (
   const pixelStack: [number, number][] = [
     [Math.round(startX), Math.round(startY)],
   ];
-  const canvasWidth = ctx.canvas.width,
-    canvasHeight = ctx.canvas.height;
-  console.log("==435", canvasWidth, canvasHeight, startX, startY);
+  const canvasWidth = imageData.width,
+    canvasHeight = imageData.height;
   const startPos = (startY * canvasWidth + startX) * 4;
-  const colorLayer = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+  const colorLayer = imageData;
   const startColor: [number, number, number] = [
     colorLayer.data[startPos],
     colorLayer.data[startPos + 1],
     colorLayer.data[startPos + 2],
   ];
   const updatedPoint: Record<string | number, boolean> = {};
-  console.log("===45", startColor, fillColor);
   if (
     startColor[0] === fillColor[0] &&
     startColor[1] === fillColor[1] &&
     startColor[2] === fillColor[2]
   ) {
-    return undefined;
+    return imageData;
   }
   while (pixelStack.length > 0) {
     const newPos = pixelStack.pop() as [number, number];
@@ -79,7 +77,6 @@ export const efficentFloodFill = (
     }
   }
   return colorLayer;
-  // ctx.putImageData(colorLayer, 0, 0);
 };
 
 /*color 对比*/

@@ -127,34 +127,15 @@ class Bucket extends Tool {
     this.color = color;
   };
 
-  operateStart(pos) {
-    console.log("--3", Tool.canvas);
-    const ctx = Tool.canvas.getContext();
+  filterChange(pos) {
     const color = parseColorString(Bucket.color);
-    // efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
-    Promise.resolve().then(() => {
-      efficentFloodFill(ctx, pos.x, pos.y, [color.r, color.g, color.b]);
-    });
-
-    // const canvas2dBackend = new fabric.Canvas2dFilterBackend();
-    // fabric.filterBackend = canvas2dBackend;
-    //fabric.filterBackend = fabric.initFilterBackend();
-
-    //this.filterChange(pos, color);
-
-    // Tool.canvas.requestRenderAll();
-  }
-
-  filterChange(pos, color) {
-    const obj = Tool.canvas.getObjects()[0];
-    console.log("===546", obj, Tool.img, Tool.canvas.getActiveObject());
-    const filter = new fabric.Image.filters["Redify"]({
+    const filter = new fabric.Image.filters["ChangeColorFilter"]({
       pos,
       fillColor: [color.r, color.g, color.b],
     });
-    Tool.img.filters[0] = filter;
+    Tool.img.filters.push(filter);
     Tool.img.applyFilters();
-    Tool.canvas.requestRenderAll();
+    Tool.canvas.renderAll();
   }
 
   public onMouseDown(options): void {
@@ -162,17 +143,16 @@ class Bucket extends Tool {
       return;
     }
     const { e, pointer } = options;
-    const points1 = Tool.canvas.getPointer(e);
     e.preventDefault();
     const showPointer = getMousePos(e); //getTransformedPos(pointer);
     const zoomPoint = getTransformedPos(showPointer);
     //const calcPoints = getMousePosition(e);
     const show = {
-      x: zoomPoint.x * 2,
-      y: zoomPoint.y * 2,
+      x: pointer.x * 2,
+      y: pointer.y * 2,
     };
 
-    this.operateStart(show);
+    this.filterChange(zoomPoint);
   }
 }
 

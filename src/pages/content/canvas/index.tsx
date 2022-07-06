@@ -17,34 +17,29 @@ const minScale = 0.1;
 const canvas2dBackend = new fabric.Canvas2dFilterBackend();
 fabric.filterBackend = canvas2dBackend;
 
-fabric.Image.filters["Redify"] = fabric.util.createClass(
+fabric.Image.filters["ChangeColorFilter"] = fabric.util.createClass(
   fabric.Image.filters.BaseFilter,
   {
-    type: "Redify",
+    type: "ChangeColorFilter",
     applyTo: function (options) {
+      let imageData = options.imageData;
       if (this.fillColor && this.pos) {
-        const newImageData = efficentFloodFill(
-          options.ctx,
+        imageData = efficentFloodFill(
+          imageData,
           this.pos.x,
           this.pos.y,
           this.fillColor
         );
-        console.log("===4", newImageData);
-        if (newImageData) {
-          options.ctx.putImageData(newImageData, 0, 0);
-        }
-        this.fillColor = undefined;
-        this.pos = undefined;
       }
+
+      options.ctx.putImageData(imageData, 0, 0);
     },
   }
 );
 
-fabric.Image.filters["Redify"].fromObject = function (object) {
-  return new fabric.Image.filters["Redify"](object);
+fabric.Image.filters["ChangeColorFilter"].fromObject = function (object) {
+  return new fabric.Image.filters["ChangeColorFilter"](object);
 };
-// fabric.Image.filters["Redify"].fromObject =
-//   fabric.Image.filters.BaseFilter["fromObject"];
 
 interface CanvasProps {
   board: Board;
@@ -95,13 +90,11 @@ export default (props: CanvasProps) => {
             //canvas.add(img).renderAll();
             // 图片加载完成之后，应用滤镜效果
             //img.filters.push(new fabric.Image.filters.Grayscale());
-            img.filters.push(
-              new fabric.Image.filters["Redify"]({ fillColor: "test" })
-            );
+            img.filters.push(new fabric.Image.filters["ChangeColorFilter"]());
             img.applyFilters();
-            //canvas.add(img).renderAll();
+            canvas.add(img).renderAll();
             Tool.img = img;
-            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+            //canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
           { crossOrigin: "anonymous" }
         );
@@ -152,8 +145,7 @@ export default (props: CanvasProps) => {
           setManage(new Shape());
           break;
         case "ERASER":
-          Tool.canvas.isDrawingMode = true;
-          // fabricCanvas.freeDrawingBrush.width = 10; // 设置画笔粗细为 10
+          Tool.canvas.freeDrawingBrush.color = "transparent";
           setManage(new Eraser());
           //board.setIsDrawingMode(true);
           break;
@@ -189,7 +181,7 @@ export default (props: CanvasProps) => {
   };
 
   const onSelected = (options) => {
-    console.log("==435", options);
+    console.log("=onSelected=435", options);
     if (manager) {
       manager.onSelected(options);
     }
@@ -336,7 +328,7 @@ export default (props: CanvasProps) => {
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
       fabricCanvas.on("after:render", (options) => {
-        console.log("==546", options);
+        console.log("after:render==546", options);
         fabricCanvas.calcOffset();
       });
 
