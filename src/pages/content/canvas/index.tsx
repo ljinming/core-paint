@@ -1,7 +1,8 @@
-import { fabric } from "fabric";
+import { fabric } from "fabric-with-erasing";
 import { Tool, Pen, Shape, Eraser, Bucket, CanvasText } from "@/tool";
 import { useEffect, useRef, useState } from "react";
-import { efficentFloodFill } from "./utils";
+import cursorPen from "@/assets/icon/cursorPen.jpg";
+import { efficentFloodFill, getTrans } from "./utils";
 import "./index.less";
 
 let translatex = 0;
@@ -10,9 +11,12 @@ let show_scale = 1;
 const scaleStep = 0.01;
 const maxScale = 6;
 const minScale = 0.1;
+
+/*设置为2d模块 如不设置 默认webgl 为true*/
 const canvas2dBackend = new fabric.Canvas2dFilterBackend();
 fabric.filterBackend = canvas2dBackend;
 
+/*filter*/
 fabric.Image.filters["ChangeColorFilter"] = fabric.util.createClass(
   fabric.Image.filters.BaseFilter,
   {
@@ -61,7 +65,6 @@ export default (props: CanvasProps) => {
     const canvasBox = canvasBoxRef.current;
     const canvasCurrent = canvasRef.current;
     const { width, height } = canvasBox.getBoundingClientRect();
-    const { left, top } = canvasCurrent.getBoundingClientRect();
     if (canvasSize) {
       const showScale =
         Math.min(width, height) /
@@ -75,11 +78,10 @@ export default (props: CanvasProps) => {
         width: canvasSize.width, // 画布宽度
         height: canvasSize.height, // 画布高度
         backgroundColor: backgroundColor || "#2d2d2d", // 画布背景色
+        preserveObjectStacking: false,
         // isDrawingMode: true,
       });
       Tool.canvas = canvas;
-      canvas.setCursor("default");
-
       setManage(new Pen());
       if (imgSrc) {
         fabric.Image.fromURL(
@@ -105,6 +107,7 @@ export default (props: CanvasProps) => {
 
   useEffect(() => {
     Tool.toolType = tool;
+    showCanvasCursor();
     if (fabricCanvas) {
       switch (tool) {
         case "PEN":
@@ -129,8 +132,25 @@ export default (props: CanvasProps) => {
     }
   }, [tool]);
 
+  const showCanvasCursor = () => {
+    // const upEleCanvasList =
+    //   document.getElementsByClassName("upper-canvas") || [];
+    // let upEleCanvas;
+    // for (let i = 0; i < upEleCanvasList.length; i++) {
+    //   if (upEleCanvasList[i]?.clientWidth === canvasSize.width) {
+    //     upEleCanvas = upEleCanvasList[i];
+    //     break;
+    //   }
+    // }
+    // if (upEleCanvas) {
+    //   upEleCanvas.style.cursor = `url(${cursorPen}) 12 16,auto`;
+    // }
+    if (fabricCanvas) {
+      fabricCanvas.setCursor("default");
+    }
+  };
+
   const clacCanvasTransform = (scale, translatex, translatey) => {
-    const canvas = canvasRef.current;
     const upEleCanvasList =
       document.getElementsByClassName("upper-canvas") || [];
     let upEleCanvas;
@@ -168,7 +188,7 @@ export default (props: CanvasProps) => {
   };
 
   const onSelected = (options) => {
-    // console.log("=onSelected=435", options);
+    console.log("=onSelected=435", options);
     if (manager) {
       manager.onSelected(options);
     }
@@ -184,34 +204,6 @@ export default (props: CanvasProps) => {
     if (manager) {
       manager.onDbClick(options);
     }
-  };
-
-  const getTrans = (
-    client: number,
-    newScale: number,
-    direction: string,
-    img: any,
-    boxdom: any,
-    scale: number
-  ) => {
-    const lastTrans = direction === "width" ? translatex : translatey;
-    // console.log("已经偏移的距离:", lastTrans);
-
-    const sizeChanage = img[direction] * newScale - img[direction] * scale;
-    // console.log(`img ${direction}放大了:`, sizeChanage);
-
-    // 整体已经移动过了，需要弥补回来
-    const pre = client - lastTrans - boxdom[direction === "width" ? "x" : "y"];
-
-    //console.log("缩放中心到边界的距离", pre);
-
-    const percent = pre / (img[direction] * scale);
-
-    //  console.log("当前缩放尺度下，缩放中心到边界比例", percent);
-
-    const trans = percent * sizeChanage;
-    // console.log("缩放中心移动的距离:", trans);
-    return trans;
   };
 
   const onWheel = (options) => {
@@ -242,7 +234,9 @@ export default (props: CanvasProps) => {
           x,
           y,
         },
-        show_scale
+        show_scale,
+        translatex,
+        translatey
       );
       const transY = getTrans(
         clientY,
@@ -255,7 +249,9 @@ export default (props: CanvasProps) => {
           x,
           y,
         },
-        show_scale
+        show_scale,
+        translatex,
+        translatey
       );
       translatex = translatex - transX;
       translatey = translatey - transY;
@@ -324,6 +320,3 @@ export default (props: CanvasProps) => {
     </div>
   );
 };
-function setAttribute(arg0: string, arg1: string) {
-  throw new Error("Function not implemented.");
-}

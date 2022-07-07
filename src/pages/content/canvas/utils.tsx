@@ -114,3 +114,33 @@ const fillPixel = (
   //return colorLayer;
   return colorLayer;
 };
+
+export const getTrans = (
+  client: number,
+  newScale: number,
+  direction: string,
+  img: any,
+  boxdom: any,
+  scale: number,
+  translatex: number,
+  translatey: number
+) => {
+  const lastTrans = direction === "width" ? translatex : translatey;
+  // console.log("已经偏移的距离:", lastTrans);
+
+  const sizeChanage = img[direction] * newScale - img[direction] * scale;
+  // console.log(`img ${direction}放大了:`, sizeChanage);
+
+  // 整体已经移动过了，需要弥补回来
+  const pre = client - lastTrans - boxdom[direction === "width" ? "x" : "y"];
+
+  //console.log("缩放中心到边界的距离", pre);
+
+  const percent = pre / (img[direction] * scale);
+
+  //  console.log("当前缩放尺度下，缩放中心到边界比例", percent);
+
+  const trans = percent * sizeChanage;
+  // console.log("缩放中心移动的距离:", trans);
+  return trans;
+};
