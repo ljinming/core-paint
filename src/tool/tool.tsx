@@ -37,45 +37,14 @@ export const getPixelColorOnCanvas = (
   return rgbToHex(p[0], p[1], p[2], p[3]);
 };
 
-//缩放后鼠标坐标
-export const getTransformedPos = (points: Point): Point => {
-  let zoom = Number(Tool.canvas.getZoom());
-  return {
-    x: (points.x - Tool.canvas.viewportTransform[4]) / zoom,
-    y: (points.y - Tool.canvas.viewportTransform[4]) / zoom,
-  };
-};
-
-//当前鼠标坐标
-export const getMousePos = (event: MouseEvent): Point => {
-  return {
-    x: event.clientX - Tool._offset.x,
-    y: event.clientY - Tool._offset.y,
-  };
-};
-
-export const getMousePosition = (event: MouseEvent): Point => {
-  const scale = Tool.currentScale || 1;
-  const rect = Tool.canvasCurrent.getBoundingClientRect();
-  return {
-    x: (event.clientX - rect.left) / scale,
-    y: (event.clientY - rect.top) / scale,
-  };
-};
-
 export default class Tool {
   //选择的工具
   public toolType: string = "PEN";
 
   // canvas
   public static canvas: fabric.Canvas;
-  static currentScale: number = 1;
-  static _offset: { x: any; y: any };
-  static canvasCurrent: any;
   static toolType: string;
-  static filters: fabric.IAllFilters;
   static img: fabric.Image;
-  static transform: { translatex: number; translatey: number };
   static strawColor: string;
   static strawFlag: boolean;
   static canvasObj = [];
@@ -89,7 +58,7 @@ export default class Tool {
         const tagCanvas = removeList[removeList.length - 1];
         this.canvasObj.push(tagCanvas);
         this.canvas.remove(tagCanvas);
-      } else {
+      } else if (flag > 0 && this.canvasObj.length > 0) {
         //回到撤回前一步
         const current = this.canvasObj.pop();
         if (current) {

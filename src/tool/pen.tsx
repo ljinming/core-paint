@@ -1,7 +1,6 @@
 import Tool, { getRandomColor, setStrawColor } from "./tool";
 import cursorPen from "@/assets/icon/cursorPen.jpg";
 import straw from "@/assets/icon/straw.jpg";
-import { fabric } from "fabric";
 
 class Pen extends Tool {
   static color: string = getRandomColor();
@@ -12,34 +11,33 @@ class Pen extends Tool {
     this.init();
   }
 
-  //fabric.BaseBrush.limitedToCanvasSize = true
   init() {
     console.log("pen init", Tool.strawColor);
-    // 设置自由绘画模式画笔类型为 铅笔类型
-    Tool.canvas.freeDrawingBrush = new fabric.PencilBrush(Tool.canvas);
-    //  Tool.canvas.freeDrawingBrush["limitedToCanvasSize"] = true;
-    // Tool.canvas.freeDrawingBrush = new fabric.BaseBrush();
-    Tool.canvas.freeDrawingBrush.width = Pen.lineWidth;
-    // Tool.canvas.BaseBrush.limitedToCanvasSize = Boolean;
     if (!Tool.canvas.isDrawingMode) {
       Tool.canvas.isDrawingMode = true;
     }
     Tool.canvas.freeDrawingBrush.color = Tool.strawColor || Pen.color;
-    Tool.canvas.setCursor("default");
+    Tool.canvas.freeDrawingBrush.width = Pen.lineWidth;
+    Tool.canvas.setCursor(`${cursorPen}`);
   }
 
-  static setPenStyle(type: string, value: string | number) {
+  static setPenStyle(type: string, value: any) {
     Pen[type] = value;
+    if (type === "lineWidth") {
+      Tool.canvas.freeDrawingBrush.width = value;
+    } else {
+      Tool.canvas.freeDrawingBrush.color = value;
+    }
   }
 
-  onMouseDown = (options) => {
-    const { e, pointer } = options;
+  public onMouseDown = (options) => {
+    const { e, pointer, absolutePointer } = options;
     e.preventDefault();
     if (Tool.toolType === "PEN") {
       if (Tool.strawFlag) {
         const show = {
-          x: pointer.x * 2,
-          y: pointer.y * 2,
+          x: absolutePointer.x * 2,
+          y: absolutePointer.y * 2,
         };
         setStrawColor(show);
       } else {

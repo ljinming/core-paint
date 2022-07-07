@@ -1,21 +1,16 @@
-import Tool, {
-  getTransformedPos,
-  getMousePosition,
-  getMousePos,
-  getPixelColorOnCanvas,
-} from "./tool";
-//import "@/libs/eraser_brush.mixin.js"; // 本地地址进行引用即可
+import Tool, { getPixelColorOnCanvas } from "./tool";
+//import "libs/eraser_brush.mixin.js"; // 本地地址进行引用即可
 
 class Eraser extends Tool {
   color: string;
   constructor() {
     super();
-    this.color = "transparent";
     this.init();
   }
 
   init() {
-    Tool.canvas.freeDrawingBrush.color = this.color;
+    Tool.canvas.freeDrawingBrush.color = "transparent";
+    // Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas); // 使用橡皮擦画笔
     Tool.canvas.isDrawingMode = true;
     Tool.canvas.freeDrawingBrush.width = 20; // 设置画笔粗细为 20
   }
@@ -28,7 +23,6 @@ class Eraser extends Tool {
   private operateStart = (pointer): void => {
     const ctx = Tool.canvas.getContext();
     const color = getPixelColorOnCanvas(pointer, ctx);
-    this.color = color;
     Tool.canvas.freeDrawingBrush.color = color;
   };
 
@@ -36,26 +30,14 @@ class Eraser extends Tool {
     if (Tool.toolType !== "ERASER") {
       return;
     }
-    const { e, pointer } = options;
+    const { e, pointer, absolutePointer } = options;
     e.preventDefault();
-    //const showPointer = getMousePos(e); //getTransformedPos(pointer);
-    // const zoomPoint = getTransformedPos(showPointer);
-    // const calcPoints = getMousePosition(e);
-    // // const showPoint = getTransformedPos(pointer);
-    e.preventDefault();
+    Tool.canvas.freeDrawingBrush.color = "transparent";
     const show = {
-      x: pointer.x * 2,
-      y: pointer.y * 2,
+      x: absolutePointer.x * 2,
+      y: absolutePointer.y * 2,
     };
     this.operateStart(show);
-  }
-  public onMouseMove(options) {
-    if (Tool.toolType !== "ERASER") {
-      return;
-    }
-    const { e, pointer } = options;
-    e.preventDefault();
-    Tool.canvas.freeDrawingBrush.color = this.color;
   }
 }
 

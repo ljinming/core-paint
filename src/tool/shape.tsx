@@ -1,9 +1,4 @@
-import Tool, {
-  getTransformedPos,
-  getMousePos,
-  getMousePosition,
-  setStrawColor,
-} from "./tool";
+import Tool, { setStrawColor } from "./tool";
 import { fabric } from "fabric";
 import { Point } from "./tool";
 
@@ -215,52 +210,43 @@ class Shape extends Tool {
     if (Tool.toolType !== "SHAPE") {
       return;
     }
-    const { e, pointer } = options;
-    const showPointer = getMousePos(e); //getTransformedPos(pointer);
-    const zoomPoint = getTransformedPos(showPointer);
+    const { e, absolutePointer } = options;
+
+    this.downPoints = absolutePointer; //鼠标按下的位置
     if (Tool.strawFlag) {
       const show = {
-        x: pointer.x * 2,
-        y: pointer.y * 2,
+        x: absolutePointer.x * 2,
+        y: absolutePointer.y * 2,
       };
       setStrawColor(show);
       return;
     }
-
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
-
-    this.downPoints = zoomPoint; //鼠标按下的位置
-    const calcPoints = getMousePosition(e);
-
     if (!this.selected) {
       if (shapeType === "RHOMBUS") {
         if (!this.shapeCurrent) {
-          this.createShape(calcPoints);
+          this.createShape(absolutePointer);
         } else {
-          this.changeShape(calcPoints);
+          this.changeShape(absolutePointer);
         }
       } else if (!this.shapeCurrent) {
-        this.createShape(calcPoints);
+        this.createShape(absolutePointer);
       }
     }
   }
 
   public onMouseMove(options): void {
     if (Tool.toolType === "SHAPE") {
-      const { e } = options;
+      const { e, absolutePointer } = options;
       e.preventDefault();
       const { shapeType } = Shape.shapeObject;
-      const showPointer = getMousePos(e); //鼠标按下位置
-      const zoomPoint = getTransformedPos(showPointer); //缩放后的位置
       e.preventDefault();
-      const calcPoints = getMousePosition(e);
-
       if (this.shapeCurrent) {
         if (shapeType === "RHOMBUS") {
-          this.changePolygonBelt(zoomPoint);
+          this.changePolygonBelt(absolutePointer);
         } else {
-          this.changeShape(calcPoints);
+          this.changeShape(absolutePointer);
         }
       }
     }
@@ -270,12 +256,11 @@ class Shape extends Tool {
     if (Tool.toolType !== "SHAPE") {
       return;
     }
-    const { e } = options;
+    const { e, absolutePointer } = options;
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
-    const showPointer = getMousePos(e); //鼠标按下位置
     if (shapeType !== "RHOMBUS") {
-      this.upPoints = showPointer;
+      this.upPoints = absolutePointer;
       if (JSON.stringify(this.downPoints) === JSON.stringify(this.upPoints)) {
         Tool.canvas.remove(this.shapeCurrent);
       }
@@ -288,11 +273,10 @@ class Shape extends Tool {
       return;
     }
     const { shapeType } = Shape.shapeObject;
-    const { e, pointer } = options;
-    const showPointer = getTransformedPos(pointer);
+    const { e, absolutePointer } = options;
     e.preventDefault();
     if (shapeType === "RHOMBUS" && this.shapeCurrent) {
-      this.finishPolygon(showPointer);
+      this.finishPolygon(absolutePointer);
     }
   }
 

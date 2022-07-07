@@ -4,7 +4,7 @@ import "./index.less";
 import "./font.css";
 import { useState, useEffect } from "react";
 interface HomeProps {
-  backgroundColor: string;
+  backgroundColor?: string;
   width?: number;
   height?: number;
   imgSrc?: string;

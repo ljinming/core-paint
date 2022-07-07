@@ -1,5 +1,5 @@
 import { fabric } from "fabric";
-import Tool, { getMousePos, getTransformedPos, setStrawColor } from "./tool";
+import Tool, { setStrawColor } from "./tool";
 
 class CanvasText extends Tool {
   textObject: any;
@@ -37,7 +37,7 @@ class CanvasText extends Tool {
     if (Tool.toolType !== "TEXT") {
       return;
     }
-    const { e, pointer } = options;
+    const { e, pointer, absolutePointer } = options;
     e.preventDefault();
     if (Tool.strawFlag) {
       const show = {
@@ -47,11 +47,9 @@ class CanvasText extends Tool {
       setStrawColor(show);
       return;
     }
-    const showPointer = getMousePos(e); //鼠标按下位置
-    const zoomPoint = getTransformedPos(showPointer); //缩放后的位置
     if (!this.selected) {
       if (!this.textObject) {
-        this.initText(zoomPoint);
+        this.initText(absolutePointer);
       } else {
         this.textObject.exitEditing();
         this.textObject = null;

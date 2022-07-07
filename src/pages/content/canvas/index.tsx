@@ -7,7 +7,7 @@ import "./index.less";
 let translatex = 0;
 let translatey = 0;
 let show_scale = 1;
-const scaleStep = 0.1;
+const scaleStep = 0.01;
 const maxScale = 6;
 const minScale = 0.1;
 const canvas2dBackend = new fabric.Canvas2dFilterBackend();
@@ -66,6 +66,10 @@ export default (props: CanvasProps) => {
       const showScale =
         Math.min(width, height) /
           Math.max(canvasSize.height, canvasSize.width) || 1;
+      translatex = (width - canvasSize.width * showScale) / 2;
+      translatey = (height - canvasSize.height * showScale) / 2;
+      canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
+      show_scale = showScale;
       //初始化画布
       const canvas = new fabric.Canvas(canvasRef.current, {
         width: canvasSize.width, // 画布宽度
@@ -75,12 +79,7 @@ export default (props: CanvasProps) => {
       });
       Tool.canvas = canvas;
       canvas.setCursor("default");
-      translatex = (width - canvasSize.width * showScale) / 2;
-      translatey = (height - canvasSize.height * showScale) / 2;
-      Tool._offset = {
-        x: left,
-        y: top,
-      };
+
       setManage(new Pen());
       if (imgSrc) {
         fabric.Image.fromURL(
@@ -100,20 +99,6 @@ export default (props: CanvasProps) => {
           { crossOrigin: "anonymous" }
         );
       }
-      Tool.transform = {
-        translatex,
-        translatey,
-      };
-      // canvasCurrent.style.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
-      Tool.canvasCurrent = canvasCurrent;
-      Tool.currentScale = showScale;
-      show_scale = showScale;
-      canvas.freeDrawingBrush["limitedToCanvasSize"] = true;
-      canvas.freeDrawingBrush.strokeLineJoin = "miter";
-
-      Tool.canvas.setZoom(showScale);
-      // Tool.canvas.setWidth(canvasSize.width);
-      // Tool.canvas.setHeight(canvasSize.width);
       setCanvas(canvas);
     }
   }, [canvasSize]);
@@ -144,6 +129,27 @@ export default (props: CanvasProps) => {
     }
   }, [tool]);
 
+  const clacCanvasTransform = (scale, translatex, translatey) => {
+    const canvas = canvasRef.current;
+    const upEleCanvasList =
+      document.getElementsByClassName("upper-canvas") || [];
+    let upEleCanvas;
+
+    for (let i = 0; i < upEleCanvasList.length; i++) {
+      if (upEleCanvasList[i]?.clientWidth === canvasSize.width) {
+        upEleCanvas = upEleCanvasList[i];
+        break;
+      }
+    }
+    //
+    const new_translatex = Number((translatex / scale).toFixed(3));
+    const new_translatey = Number((translatey / scale).toFixed(3));
+
+    if (upEleCanvas) {
+      upEleCanvas.style.transform = `scale(${scale}) translate(${new_translatex}px,${new_translatey}px)`;
+    }
+  };
+
   const onMouseDown = (options) => {
     if (manager) {
       manager.onMouseDown(options);
@@ -162,7 +168,7 @@ export default (props: CanvasProps) => {
   };
 
   const onSelected = (options) => {
-    console.log("=onSelected=435", options);
+    // console.log("=onSelected=435", options);
     if (manager) {
       manager.onSelected(options);
     }
@@ -215,8 +221,6 @@ export default (props: CanvasProps) => {
     const container = canvasBoxRef!.current;
     const { clientX, clientY, deltaX, deltaY, ctrlKey } = event;
     const { width, height, x, y } = container!.getBoundingClientRect();
-    const { width: canvasWidth, height: canvasHeight } =
-      container!.getBoundingClientRect();
     let newScale;
     if (ctrlKey) {
       //双指放大缩小
@@ -256,52 +260,35 @@ export default (props: CanvasProps) => {
       translatex = translatex - transX;
       translatey = translatey - transY;
       show_scale = newScale;
-      Tool.currentScale = newScale;
-      canvas!.style.transform = `translate3d(${translatex}px, ${translatey}px, 0px) scale(${show_scale})`;
+      canvas!.style.transform = `translate(${translatex}px, ${translatey}px) scale(${show_scale})`;
+      clacCanvasTransform(newScale, translatex, translatey);
     }
-    // else {
-    //   if (!!deltaX && !deltaY) {
-    //     // if (translatex > 0 && translatex < width) {
-    //     // 左右移动 向右 -deltaX < 0  向左   >0
-    //     translatex = Number((translatex - deltaX).toFixed(3));
-    //     // }
-    //   } else if (!!deltaY && !deltaX) {
-    //     // if (translatey > 0 && translatex < height) {
-    //     // 左右移动 向右 -deltaX < 0  向左   >0
-    //     translatey = Number((translatey - deltaY).toFixed(3));
-    //     // }
-    //   }
-    // }
   };
 
-  const onWheelZoom = (options) => {
-    const { e } = options;
-    e.preventDefault();
-    const { deltaY, offsetX, offsetY } = e; // 滚轮，向上滚一下是 -100，向下滚一下是 100
-    let zoom = Tool.canvas.getZoom(); // 获取画布当前缩放值
-    zoom *= 0.999 ** deltaY;
-    if (zoom > 20) zoom = 20; // 限制最大缩放级别
-    if (zoom < 0.01) zoom = 0.01; // 限制最小缩放级别
-
-    // 以鼠标所在位置为原点缩放
-    Tool.canvas.zoomToPoint(
-      {
-        // 关键点
-        x: offsetX,
-        y: offsetY,
-      },
-      zoom // 传入修改后的缩放级别
-    );
+  const onCanvasBoxWheel = (event) => {
+    event.preventDefault();
+    const { deltaX, deltaY, ctrlKey } = event;
+    const canvas = canvasRef.current;
+    if (!ctrlKey) {
+      if (!!deltaX && !deltaY) {
+        // if (translatex > 0 && translatex < width) {
+        // 左右移动 向右 -deltaX < 0  向左   >0
+        translatex = Number((translatex - deltaX).toFixed(3));
+        // }
+      } else if (!!deltaY && !deltaX) {
+        // if (translatey > 0 && translatex < height) {
+        // 左右移动 向右 -deltaX < 0  向左   >0
+        translatey = Number((translatey - deltaY).toFixed(3));
+        // }
+      }
+      canvas!.style.transform = `translate(${translatex}px, ${translatey}px) scale(${show_scale})`;
+      clacCanvasTransform(show_scale, translatex, translatey);
+    }
   };
-
-  // const onAfterRender = (options) => {
-  //   // if (Tool.onAfterRender) {
-  //   //   Tool.onAfterRender(options);
-  //   // }
-  // };
 
   useEffect(() => {
-    if (fabricCanvas) {
+    const canvasBox = canvasBoxRef.current;
+    if (fabricCanvas && canvasBox) {
       fabricCanvas.on("mouse:down", onMouseDown);
       fabricCanvas.on("mouse:move", onMouseMove);
       fabricCanvas.on("mouse:up", onMouseUp);
@@ -309,7 +296,8 @@ export default (props: CanvasProps) => {
       fabricCanvas.on("mouse:dblclick", onDbClick);
 
       //缩放
-      fabricCanvas.on("mouse:wheel", onWheelZoom);
+      fabricCanvas.on("mouse:wheel", onWheel);
+      canvasBox.addEventListener("wheel", onCanvasBoxWheel, { passive: false });
 
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
@@ -336,3 +324,6 @@ export default (props: CanvasProps) => {
     </div>
   );
 };
+function setAttribute(arg0: string, arg1: string) {
+  throw new Error("Function not implemented.");
+}
