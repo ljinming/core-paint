@@ -3,10 +3,7 @@ import { fabric } from "fabric";
 import { Point } from "./tool";
 
 class Shape extends Tool {
-  private shapeType: string;
   private shapeCurrent: any;
-  private shapeColor: string;
-  private selected: boolean;
   downPoints: Point;
   upPoints: Point;
   static shapeObject: Record<string, string> = {
@@ -14,13 +11,13 @@ class Shape extends Tool {
     border: "SOLID",
     color: "#000",
   };
+  static selected: boolean = false;
+  static selectedList: any[];
   constructor() {
     super();
-    this.shapeType = "LINE";
     this.shapeCurrent = undefined;
     this.downPoints = undefined;
     this.upPoints = undefined;
-    this.selected = false;
     this.init();
   }
 
@@ -30,6 +27,23 @@ class Shape extends Tool {
 
   static changeShapeType(type: string, value: string) {
     this.shapeObject[type] = value;
+    const { border } = Shape.shapeObject;
+
+    if (this.selected && this.selectedList.length > 0) {
+      this.selectedList.forEach((va) => {
+        if (type === "color") {
+          if (border === "FILL") {
+            va.set("fill", value);
+            va.set("stroke", value);
+          } else {
+            va.set("stroke", value);
+          }
+        } else if (type === "border") {
+          va.set("strokeDashArray", value === "DOTTED" ? [3, 3] : [0, 0]);
+        }
+      });
+      Tool.canvas.requestRenderAll();
+    }
   }
 
   createShape = (pointer) => {
@@ -226,7 +240,7 @@ class Shape extends Tool {
     }
     const { shapeType } = Shape.shapeObject;
     e.preventDefault();
-    if (!this.selected) {
+    if (!Shape.selected) {
       if (shapeType === "RHOMBUS") {
         if (!this.shapeCurrent) {
           this.createShape(absolutePointer);
@@ -287,13 +301,15 @@ class Shape extends Tool {
     if (Tool.toolType !== "SHAPE") {
       return;
     }
-    this.selected = true;
+    Shape.selected = true;
+    Shape.selectedList = options.selected;
   }
   public onCancelSelected(options): void {
     if (Tool.toolType !== "SHAPE") {
       return;
     }
-    this.selected = false;
+    Shape.selected = false;
+    Shape.selectedList = [];
   }
 }
 
