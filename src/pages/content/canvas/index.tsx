@@ -2,6 +2,10 @@ import { fabric } from "fabric";
 import { Tool, Pen, Shape, Eraser, Bucket, CanvasText } from "@/tool";
 import { useEffect, useRef, useState } from "react";
 import cursorPen from "@/assets/icon/cursorPen.jpg";
+import cursorErase from "@/assets/icon/cursorErase.jpg";
+import straw_jpg from "@/assets/icon/straw.jpg";
+import bucket from "@/assets/icon/bucket.jpg";
+
 import { efficentFloodFill, getTrans } from "./utils";
 import "./index.less";
 
@@ -78,10 +82,12 @@ export default (props: CanvasProps) => {
         width: canvasSize.width, // 画布宽度
         height: canvasSize.height, // 画布高度
         backgroundColor: backgroundColor || "#2d2d2d", // 画布背景色
-        preserveObjectStacking: false,
+        // perPixelTargetFind: true,
+        //selection: false,
         // isDrawingMode: true,
       });
       Tool.canvas = canvas;
+      canvas.freeDrawingCursor = `url(${cursorPen}) 12 16,auto`;
       setManage(new Pen());
       if (imgSrc) {
         fabric.Image.fromURL(
@@ -91,7 +97,7 @@ export default (props: CanvasProps) => {
             img.evented = false;
             //canvas.add(img).renderAll();
             // 图片加载完成之后，应用滤镜效果
-            //img.filters.push(new fabric.Image.filters.Grayscale());
+            // img.filters.push(new fabric.Image.filters.Grayscale());
             img.filters.push(new fabric.Image.filters["ChangeColorFilter"]());
             img.applyFilters();
             //canvas.add(img).renderAll();
@@ -107,7 +113,6 @@ export default (props: CanvasProps) => {
 
   useEffect(() => {
     Tool.toolType = tool;
-    showCanvasCursor();
     if (fabricCanvas) {
       switch (tool) {
         case "PEN":
@@ -132,23 +137,26 @@ export default (props: CanvasProps) => {
     }
   }, [tool]);
 
-  const showCanvasCursor = () => {
-    // const upEleCanvasList =
-    //   document.getElementsByClassName("upper-canvas") || [];
-    // let upEleCanvas;
-    // for (let i = 0; i < upEleCanvasList.length; i++) {
-    //   if (upEleCanvasList[i]?.clientWidth === canvasSize.width) {
-    //     upEleCanvas = upEleCanvasList[i];
-    //     break;
-    //   }
-    // }
-    // if (upEleCanvas) {
-    //   upEleCanvas.style.cursor = `url(${cursorPen}) 12 16,auto`;
-    // }
+  useEffect(() => {
     if (fabricCanvas) {
-      fabricCanvas.setCursor("default");
+      if (straw.strawFlag) {
+        fabricCanvas.freeDrawingCursor = `url(${straw_jpg}) 6 20,auto`;
+      } else {
+        switch (tool) {
+          case "PEN":
+            // 开启绘画功能
+            fabricCanvas.freeDrawingCursor = `url(${cursorPen}) 12 16,auto`;
+            break;
+          case "ERASER":
+            fabricCanvas.freeDrawingCursor = `url(${cursorErase}) 12 16,auto`;
+            break;
+          case "BUCKET":
+            fabricCanvas.defaultCursor = `url(${bucket}) 12 16,auto`;
+            break;
+        }
+      }
     }
-  };
+  }, [tool, straw.strawFlag]);
 
   const clacCanvasTransform = (scale, translatex, translatey) => {
     const upEleCanvasList =
@@ -188,7 +196,6 @@ export default (props: CanvasProps) => {
   };
 
   const onSelected = (options) => {
-    console.log("=onSelected=435", options);
     if (manager) {
       manager.onSelected(options);
     }
@@ -298,7 +305,9 @@ export default (props: CanvasProps) => {
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
-      // fabricCanvas.on("after:render", onAfterRender);
+      fabricCanvas.on("after:render", () => {
+        Tool.afterRender();
+      });
     }
   }, [
     fabricCanvas,

@@ -51,6 +51,14 @@ export default (props: HeaderProps) => {
       >
         {getToolIcon("undoIcon")}
       </span>
+      <span
+        className="operator-item"
+        onClick={() => {
+          console.log("-保存--345", Tool.canvas.toDataURL());
+        }}
+      >
+        保存
+      </span>
     </div>
   );
 };

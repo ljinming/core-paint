@@ -49,8 +49,39 @@ export default class Tool {
   static strawFlag: boolean;
   static canvasObj = [];
 
+  static recordTimer: any;
+  static stateArr: any[] = [];
+  static stateIdx: any;
+
+  static afterRender() {
+    if (this.recordTimer) {
+      clearTimeout(this.recordTimer);
+      this.recordTimer = null;
+    }
+    this.recordTimer = setTimeout(() => {
+      this.stateArr.push(JSON.stringify(Tool.canvas));
+      this.stateIdx++;
+    }, 1000);
+  }
+
   // 撤销 或 还原
   static tapHistoryBtn(flag) {
+    // let stateIdx = this.stateIdx + flag;
+    // console.log("===456", this.stateArr);
+    // // 判断是否已经到了第一步操作
+    // if (stateIdx < 0) return;
+    // // 判断是否已经到了最后一步操作
+    // if (stateIdx >= this.stateArr.length) return;
+    // if (this.stateArr[stateIdx]) {
+    //   this.canvas.loadFromJSON(this.stateArr[stateIdx], () => {});
+    //   if (this.canvas.getObjects().length > 0) {
+    //     this.canvas.getObjects().forEach((item) => {
+    //       item.set("selectable", false);
+    //     });
+    //   }
+    //   this.stateIdx = stateIdx;
+    // }
+
     if (this.canvas) {
       if (flag < 0 && this.canvasObj.length < 10) {
         const removeList =
