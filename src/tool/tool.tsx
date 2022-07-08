@@ -105,10 +105,10 @@ export default class Tool {
     if (this.canvas) {
       let children = this.canvas.getObjects();
       console.log("children", children);
-      if (children.length > 0) {
-        // 移除所有对象
-        this.canvas.remove(...children);
-      }
+      // if (children.length > 0) {
+      //   // 移除所有对象
+      //   this.canvas.remove(...children);
+      // }
     }
   }
 

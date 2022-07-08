@@ -21,7 +21,7 @@ const efficentFloodFill = (
   ];
   const canvasWidth = ctx.canvas.width,
     canvasHeight = ctx.canvas.height;
-  console.log("===345", canvasWidth, canvasHeight);
+  console.log("===43", canvasWidth, canvasHeight, startX, startY);
   const startPos = (startY * canvasWidth + startX) * 4;
   const colorLayer = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
   const startColor: [number, number, number] = [
@@ -88,6 +88,9 @@ const efficentFloodFill = (
   }
   ctx.putImageData(colorLayer, 0, 0);
   Tool.canvas.renderAll.bind(Tool.canvas);
+  Tool.canvas.renderAll();
+
+  //Tool.stateArr.push(JSON.stringify(Tool.canvas));
 };
 
 /**
@@ -141,16 +144,14 @@ class Bucket extends Tool {
 
   filterChange(pos) {
     const color = parseColorString(Tool.strawColor || Bucket.color);
-    // efficentFloodFill(Tool.canvas.getContext(), pos.x * 2, pos.y * 2, [
-    //   color.r,
-    //   color.g,
-    //   color.b,
-    // ]);
+    const ctx = Tool.canvas.getContext();
+    //efficentFloodFill(ctx, pos.x * 2, pos.y * 2, [color.r, color.g, color.b]);
     const filter = new fabric.Image.filters["ChangeColorFilter"]({
       pos,
       fillColor: [color.r, color.g, color.b],
     });
     Tool.img.filters.push(filter);
+    //Tool.img.filters.push(new fabric.Image.filters.Grayscale());
     Tool.img.applyFilters();
     Tool.canvas.renderAll();
   }

@@ -1,5 +1,4 @@
 import Tool, { getPixelColorOnCanvas } from "./tool";
-import { fabric } from "fabric-with-erasing";
 //import "libs/eraser_brush.mixin.js"; // 本地地址进行引用即可
 
 class Eraser extends Tool {

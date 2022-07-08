@@ -54,10 +54,27 @@ export default (props: HeaderProps) => {
       <span
         className="operator-item"
         onClick={() => {
-          console.log("-保存--345", Tool.canvas.toDataURL());
+          if (Tool.stateArr.length > 0) {
+            console.log("==34", Tool.stateArr[0]);
+          }
+          //console.log("-保存--345", Tool.canvas.toDataURL());
         }}
       >
         保存
+      </span>
+      <span
+        className="operator-item"
+        onClick={() => {
+          if (Tool.stateArr.length > 0) {
+            console.log("==34", Tool.stateArr[0]);
+            Tool.canvas.loadFromJSON(Tool.stateArr[0], (vw) => {
+              console.log("--345", vw);
+            });
+          }
+          //console.log("-保存--345", Tool.canvas.toDataURL());
+        }}
+      >
+        油漆桶
       </span>
     </div>
   );

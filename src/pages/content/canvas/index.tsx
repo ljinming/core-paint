@@ -27,6 +27,7 @@ fabric.Image.filters["ChangeColorFilter"] = fabric.util.createClass(
     type: "ChangeColorFilter",
     applyTo: function (options) {
       let imageData = options.imageData;
+
       if (this.fillColor && this.pos) {
         imageData = efficentFloodFill(
           imageData,
@@ -35,6 +36,7 @@ fabric.Image.filters["ChangeColorFilter"] = fabric.util.createClass(
           this.fillColor
         );
       }
+      console.log("=54=65", imageData);
 
       options.ctx.putImageData(imageData, 0, 0);
     },
@@ -153,6 +155,8 @@ export default (props: CanvasProps) => {
           case "BUCKET":
             fabricCanvas.defaultCursor = `url(${bucket}) 12 16,auto`;
             break;
+          default:
+            fabricCanvas.defaultCursor = "default";
         }
       }
     }

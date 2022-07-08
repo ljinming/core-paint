@@ -1,6 +1,4 @@
 import Tool, { getRandomColor, setStrawColor } from "./tool";
-import cursorPen from "@/assets/icon/cursorPen.jpg";
-import straw from "@/assets/icon/straw.jpg";
 
 class Pen extends Tool {
   static color: string = getRandomColor();
@@ -18,7 +16,6 @@ class Pen extends Tool {
     }
     Tool.canvas.freeDrawingBrush.color = Tool.strawColor || Pen.color;
     Tool.canvas.freeDrawingBrush.width = Pen.lineWidth;
-    Tool.canvas.setCursor(`${cursorPen}`);
   }
 
   static setPenStyle(type: string, value: any) {
