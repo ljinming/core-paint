@@ -9,14 +9,14 @@ import { RootState, StrawState } from "@/models/type";
 import { Tool } from "@/tool";
 
 interface ColorProps {
-  color?: string;
+  color: string;
   onChange: (color: string) => void;
   straw: StrawState;
 }
 
 const ColorPicker = (props: ColorProps) => {
   const { color, onChange, straw } = props;
-  const [showColor, setColor] = useState(color || "#000");
+  const [showColor, setColor] = useState(color);
 
   const handleChange = (color: any, event: any) => {
     if (Tool.strawColor !== "") {
@@ -60,7 +60,6 @@ const ColorPicker = (props: ColorProps) => {
   );
 };
 function mapStateToProps(state: RootState) {
-  console.log("==435", state.paint.straw);
   return {
     straw: state.paint.straw,
   };

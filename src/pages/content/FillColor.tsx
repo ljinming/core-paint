@@ -11,7 +11,6 @@ const FillColor = (props: FillColorProps) => {
   const { board, onChange } = props;
 
   const handleChange = (value) => {
-    //board.setShowCanvas({ [type]: value });
     board.fillColor = value;
     onChange(value);
     Bucket.changeColor(value);
@@ -19,7 +18,10 @@ const FillColor = (props: FillColorProps) => {
 
   return (
     <>
-      <ColorPicker onChange={(color: string) => handleChange(color)} />
+      <ColorPicker
+        color={"#000"}
+        onChange={(color: string) => handleChange(color)}
+      />
     </>
   );
 };

@@ -44,15 +44,6 @@ const Text = (props: TextProps) => {
           })}
         </Select>
       </div>
-      {/* <div className="font">
-        <Sider
-          title="Letter Spacing"
-          options={{ max: 8, min: 1 }}
-          onChange={(value: number) =>
-            handleChange("letterSpacing", value + "px")
-          }
-        />
-      </div> */}
       <div className="font">
         <Sider
           title="Font Size"
@@ -68,7 +59,10 @@ const Text = (props: TextProps) => {
           onChange={(value: number) => handleChange("lineHeight", value)}
         />
       </div>
-      <ColorPicker onChange={(color: string) => handleChange("fill", color)} />
+      <ColorPicker
+        color={"#000"}
+        onChange={(color: string) => handleChange("fill", color)}
+      />
     </div>
   );
 };

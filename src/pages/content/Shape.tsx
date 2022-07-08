@@ -5,13 +5,13 @@ import shape_rect from "@/assets/icon/shape_rect.svg";
 import shape_circle from "@/assets/icon/shape_circle.svg";
 import shape_rhombus from "@/assets/icon/shape_rhombus.svg";
 import shape_triangle from "@/assets/icon/shape_triangle.svg";
-import shape_pentagon from "@/assets/icon/shape_pentagon.svg";
-import shape_sexangle from "@/assets/icon/shape_sexangle.svg";
-import shape_arrowtop from "@/assets/icon/shape_arrowtop.svg";
-import shape_arrowright from "@/assets/icon/shape_arrowright.svg";
-import shape_arrowdown from "@/assets/icon/shape_arrowdown.svg";
-import shape_arrowleft from "@/assets/icon/shape_arrowleft.svg";
-import shape_fourstar from "@/assets/icon/shape_fourstar.svg";
+// import shape_pentagon from "@/assets/icon/shape_pentagon.svg";
+// import shape_sexangle from "@/assets/icon/shape_sexangle.svg";
+// import shape_arrowtop from "@/assets/icon/shape_arrowtop.svg";
+// import shape_arrowright from "@/assets/icon/shape_arrowright.svg";
+// import shape_arrowdown from "@/assets/icon/shape_arrowdown.svg";
+// import shape_arrowleft from "@/assets/icon/shape_arrowleft.svg";
+// import shape_fourstar from "@/assets/icon/shape_fourstar.svg";
 import ColorPicker from "@/components/colorPicker";
 import { useState } from "react";
 import { Shape } from "@/tool";
@@ -106,6 +106,7 @@ const ShapeRight = (props: pencilProps) => {
       >
         <Select.Option value={"SOLID"}>solid line</Select.Option>
         <Select.Option value={"DOTTED"}>dotted line</Select.Option>
+        <Select.Option value={"FILL"}>fill shape</Select.Option>
       </Select>
       <div className="shape-content">
         {shapes.map((shape) => (
@@ -124,7 +125,10 @@ const ShapeRight = (props: pencilProps) => {
           />
         ))}
       </div>
-      <ColorPicker onChange={(color: string) => handleChange("color", color)} />
+      <ColorPicker
+        color={"#000"}
+        onChange={(color: string) => handleChange("color", color)}
+      />
     </div>
   );
 };

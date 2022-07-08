@@ -31,7 +31,7 @@ class Bucket extends Tool {
     if (Tool.toolType !== "BUCKET") {
       return;
     }
-    const { e, absolutePointer } = options;
+    const { e, pointer, absolutePointer } = options;
     e.preventDefault();
     if (Tool.strawFlag) {
       const show = {

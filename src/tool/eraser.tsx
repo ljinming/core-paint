@@ -10,8 +10,8 @@ class Eraser extends Tool {
   }
 
   init() {
-    //Tool.canvas.freeDrawingBrush.color = "transparent";
-    Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas); // 使用橡皮擦画笔
+    Tool.canvas.freeDrawingBrush.color = "transparent";
+    // Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas); // 使用橡皮擦画笔
     Tool.canvas.isDrawingMode = true;
     Tool.canvas.freeDrawingBrush.width = 20; // 设置画笔粗细为 20
   }
@@ -24,7 +24,7 @@ class Eraser extends Tool {
   private operateStart = (pointer): void => {
     const ctx = Tool.canvas.getContext();
     const color = getPixelColorOnCanvas(pointer, ctx);
-    //Tool.canvas.freeDrawingBrush.color = color;
+    Tool.canvas.freeDrawingBrush.color = color;
   };
 
   public onMouseDown(options) {

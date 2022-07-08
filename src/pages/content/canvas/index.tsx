@@ -1,4 +1,4 @@
-import { fabric } from "fabric-with-erasing";
+import { fabric } from "fabric";
 import { Tool, Pen, Shape, Eraser, Bucket, CanvasText } from "@/tool";
 import { useEffect, useRef, useState } from "react";
 import cursorPen from "@/assets/icon/cursorPen.jpg";

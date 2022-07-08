@@ -34,10 +34,13 @@ class Shape extends Tool {
 
   createShape = (pointer) => {
     const { shapeType, border, color } = Shape.shapeObject;
-    const options = {
-      strokeDashArray: border === "SOLID" ? [0, 0] : [3, 3],
+    const options: Record<string, string | number | number[]> = {
+      strokeDashArray: border === "DOTTED" ? [3, 3] : [0, 0],
       stroke: Tool.strawColor || color, // 笔触颜色
     };
+    if (border === "FILL") {
+      options.fill = Tool.strawColor || color;
+    }
     switch (shapeType) {
       case "LINE":
         this.shapeCurrent = new fabric.Line(
@@ -63,9 +66,9 @@ class Shape extends Tool {
           left,
           width,
           height,
-          ...options,
           fill: "transparent",
           strokeWidth: 1,
+          ...options,
         });
         break;
       case "CIRCLE":
