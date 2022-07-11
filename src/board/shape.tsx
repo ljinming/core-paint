@@ -52,7 +52,6 @@ function changeCurrentPolyline(e, canvas) {
 // 折线橡皮带
 function changePolylineBelt(e, canvas) {
   const currentPoint = e.absolutePointer;
-  console.log("--456", currentPolyline, e);
   //let points = currentPolyline.points;
 
   //   points[points.length - 1].x = currentPoint.x;

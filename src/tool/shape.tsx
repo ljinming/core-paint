@@ -22,6 +22,7 @@ class Shape extends Tool {
   }
 
   init() {
+    Tool.canvas.interactive = true;
     Tool.canvas.isDrawingMode = false;
   }
 

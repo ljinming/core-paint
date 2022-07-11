@@ -6,8 +6,8 @@ import { fabric } from "fabric";
  * 高效率的填充算法
  * 参考地址: http://www.williammalone.com/articles/html5-canvas-javascript-paint-bucket-tool/
  */
-const efficentFloodFill = (
-  ctx: CanvasRenderingContext2D,
+export const efficentFloodFill = (
+  imageData: ImageData,
   startX: number,
   startY: number,
   fillColor: [number, number, number]
@@ -19,25 +19,23 @@ const efficentFloodFill = (
   const pixelStack: [number, number][] = [
     [Math.round(startX), Math.round(startY)],
   ];
-  const canvasWidth = ctx.canvas.width,
-    canvasHeight = ctx.canvas.height;
-  console.log("===43", canvasWidth, canvasHeight, startX, startY);
+  const canvasWidth = imageData.width,
+    canvasHeight = imageData.height;
   const startPos = (startY * canvasWidth + startX) * 4;
-  const colorLayer = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+  const colorLayer = imageData;
   const startColor: [number, number, number] = [
     colorLayer.data[startPos],
     colorLayer.data[startPos + 1],
     colorLayer.data[startPos + 2],
   ];
   const updatedPoint: Record<string | number, boolean> = {};
-
   if (
     startColor[0] === fillColor[0] &&
     startColor[1] === fillColor[1] &&
     startColor[2] === fillColor[2]
-  )
-    return;
-  //const newData = [];
+  ) {
+    return undefined;
+  }
   while (pixelStack.length > 0) {
     const newPos = pixelStack.pop() as [number, number];
     const x = newPos[0];
@@ -86,11 +84,7 @@ const efficentFloodFill = (
       pixelPos += canvasWidth * 4;
     }
   }
-  ctx.putImageData(colorLayer, 0, 0);
-  Tool.canvas.renderAll.bind(Tool.canvas);
-  Tool.canvas.renderAll();
-
-  //Tool.stateArr.push(JSON.stringify(Tool.canvas));
+  return colorLayer;
 };
 
 /**
@@ -139,22 +133,56 @@ class Bucket extends Tool {
   };
 
   init() {
+    Tool.canvas.interactive = false;
     Tool.canvas.isDrawingMode = false;
   }
 
-  filterChange(pos) {
+  filterChange = async (pos) => {
     const color = parseColorString(Tool.strawColor || Bucket.color);
-    const ctx = Tool.canvas.getContext();
-    //efficentFloodFill(ctx, pos.x * 2, pos.y * 2, [color.r, color.g, color.b]);
-    const filter = new fabric.Image.filters["ChangeColorFilter"]({
-      pos,
-      fillColor: [color.r, color.g, color.b],
-    });
-    Tool.img.filters.push(filter);
-    //Tool.img.filters.push(new fabric.Image.filters.Grayscale());
-    Tool.img.applyFilters();
-    Tool.canvas.renderAll();
-  }
+    const showCtx = Tool.canvas.getContext();
+    const colorLayer = efficentFloodFill(
+      showCtx.getImageData(0, 0, showCtx.canvas.width, showCtx.canvas.height),
+      pos.x * 2,
+      pos.y * 2,
+      [color.r, color.g, color.b]
+    );
+    if (colorLayer) {
+      showCtx.putImageData(colorLayer, 0, 0);
+      //const curUrl = Tool.canvas.toDataURL();
+      Tool.lastCanvas.push(Tool.canvas);
+      if (Tool.ToolStoreList.length >= 10) {
+        Tool.ToolStoreList.shift();
+        Tool.ToolStoreList.push("bucket");
+      } else {
+        //  console.log("==4", url);
+        Tool.ToolStoreList.push("bucket");
+      }
+      let canvasBucket = document.createElement("canvas");
+      canvasBucket.width = colorLayer.width;
+      canvasBucket.height = colorLayer.height;
+      canvasBucket.getContext("2d").putImageData(colorLayer, 0, 0);
+      const url = canvasBucket.toDataURL();
+      Tool.canvas.setBackgroundImage(
+        url,
+        (img) => {
+          img.selectable = false;
+          img.evented = false;
+          Tool.canvas.renderAll();
+        },
+        { crossOrigin: "anonymous", scaleX: 0.5, scaleY: 0.5 }
+      );
+      canvasBucket = null;
+    }
+
+    // const filter = new fabric.Image.filters["ChangeColorFilter"]({
+    //   pos,
+    //   fillColor: [color.r, color.g, color.b],
+    // });
+    // Tool.img.filters.push(filter);
+    // //Tool.img.filters.push(new fabric.Image.filters.Grayscale());
+    // Tool.img.applyFilters();
+    // Tool.canvas.renderAll();
+  };
 
   public onMouseDown(options): void {
     if (Tool.toolType !== "BUCKET") {
@@ -172,6 +200,18 @@ class Bucket extends Tool {
     }
     this.filterChange(absolutePointer);
   }
+  // public onMouseUp(event: MouseEvent): void {
+  //   if (Tool.toolType !== "BUCKET") {
+  //     return;
+  //   }
+  //   if (Tool.ToolStoreList.length >= 10) {
+  //     Tool.ToolStoreList.shift();
+  //     Tool.ToolStoreList.push(Tool.canvas.toDataURL());
+  //   } else {
+  //     console.log("==4", Tool.canvas.toDataURL());
+  //     Tool.ToolStoreList.push(Tool.canvas.toDataURL());
+  //   }
+  // }
 }
 
 export default Bucket;

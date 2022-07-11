@@ -9,6 +9,8 @@ class Eraser extends Tool {
   }
 
   init() {
+    Tool.canvas.interactive = false;
+
     Tool.canvas.freeDrawingBrush.color = "transparent";
     // Tool.canvas.freeDrawingBrush = new fabric.EraserBrush(Tool.canvas); // 使用橡皮擦画笔
     Tool.canvas.isDrawingMode = true;

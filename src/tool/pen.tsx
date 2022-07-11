@@ -14,6 +14,7 @@ class Pen extends Tool {
     if (!Tool.canvas.isDrawingMode) {
       Tool.canvas.isDrawingMode = true;
     }
+    Tool.canvas.interactive = false;
     Tool.canvas.freeDrawingBrush.color = Tool.strawColor || Pen.color;
     Tool.canvas.freeDrawingBrush.width = Pen.lineWidth;
   }

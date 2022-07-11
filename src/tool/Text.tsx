@@ -8,6 +8,11 @@ class CanvasText extends Tool {
   constructor() {
     super();
     this.selected = false;
+    this.init();
+  }
+
+  init() {
+    Tool.canvas.interactive = true;
   }
 
   static changeTextStyle(type: any, value: any) {

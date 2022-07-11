@@ -14,7 +14,6 @@ const handleChange = (type: string) => {
       //board.clearAll();
       break;
     case "undo":
-      console.log("--435");
       Tool.tapHistoryBtn(-1);
       //board.tapHistoryBtn(-1);
       break;

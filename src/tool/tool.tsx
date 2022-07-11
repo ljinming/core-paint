@@ -52,6 +52,10 @@ export default class Tool {
   static recordTimer: any;
   static stateArr: any[] = [];
   static stateIdx: any;
+  static transform: string;
+  static currentScale: number;
+  static ToolStoreList: any[] = [];
+  static lastCanvas: fabric.Canvas[] = [];
 
   static afterRender() {
     if (this.recordTimer) {
@@ -82,6 +86,25 @@ export default class Tool {
     //   this.stateIdx = stateIdx;
     // }
 
+    // if (this.canvas) {
+    //   if (flag < 0 && this.ToolStoreList.length < 10) {
+    //     const tagCanvas = this.ToolStoreList.pop();
+    //     if (typeof tagCanvas === "string") {
+    //       // //油漆桶 base64
+    //       // Tool.canvas = Tool.lastCanvas.pop();
+    //       // Tool.canvas.renderAll();
+    //     } else {
+    //       this.canvasObj.push(tagCanvas);
+    //       this.canvas.remove(tagCanvas);
+    //     }
+    //   } else if (flag > 0 && this.canvasObj.length > 0) {
+    //     //回到撤回前一步
+    //     const current = this.canvasObj.pop();
+    //     if (current) {
+    //       this.canvas.add(current);
+    //     }
+    //   }
+    // }
     if (this.canvas) {
       if (flag < 0 && this.canvasObj.length < 10) {
         const removeList =

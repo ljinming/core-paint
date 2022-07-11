@@ -8,6 +8,7 @@ import bucket from "@/assets/icon/bucket.jpg";
 
 import { efficentFloodFill, getTrans } from "./utils";
 import "./index.less";
+import ToolType from "../ToolType";
 
 let translatex = 0;
 let translatey = 0;
@@ -27,7 +28,14 @@ fabric.Image.filters["ChangeColorFilter"] = fabric.util.createClass(
     type: "ChangeColorFilter",
     applyTo: function (options) {
       let imageData = options.imageData;
-
+      // const context = options.canvasEl.getContext("2d");
+      // const newimageData = context.getImageData(
+      //   0,
+      //   0,
+      //   options.canvasEl.width,
+      //   options.canvasEl.height
+      // );
+      // const ctx = options.ctx;
       if (this.fillColor && this.pos) {
         imageData = efficentFloodFill(
           imageData,
@@ -36,9 +44,7 @@ fabric.Image.filters["ChangeColorFilter"] = fabric.util.createClass(
           this.fillColor
         );
       }
-      console.log("=54=65", imageData);
-
-      options.ctx.putImageData(imageData, 0, 0);
+      options.ctx.putImageData(this.ctx || imageData, 0, 0);
     },
   }
 );
@@ -84,11 +90,11 @@ export default (props: CanvasProps) => {
         width: canvasSize.width, // 画布宽度
         height: canvasSize.height, // 画布高度
         backgroundColor: backgroundColor || "#2d2d2d", // 画布背景色
-        // perPixelTargetFind: true,
-        //selection: false,
-        // isDrawingMode: true,
       });
+
       Tool.canvas = canvas;
+      Tool.transform = `scale(${showScale}) translate(${translatex}px,${translatey}px)`;
+      Tool.currentScale = showScale;
       canvas.freeDrawingCursor = `url(${cursorPen}) 12 16,auto`;
       setManage(new Pen());
       if (imgSrc) {
@@ -97,12 +103,9 @@ export default (props: CanvasProps) => {
           (img) => {
             img.selectable = false;
             img.evented = false;
-            //canvas.add(img).renderAll();
-            // 图片加载完成之后，应用滤镜效果
-            // img.filters.push(new fabric.Image.filters.Grayscale());
+            img.width = canvasSize.width;
             img.filters.push(new fabric.Image.filters["ChangeColorFilter"]());
             img.applyFilters();
-            //canvas.add(img).renderAll();
             Tool.img = img;
             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
           },
@@ -188,19 +191,28 @@ export default (props: CanvasProps) => {
     }
   };
   const onMouseMove = (options) => {
-    if (manager) {
+    if (manager && tool === "SHAPE") {
       manager.onMouseMove(options);
     }
   };
 
   const onMouseUp = (options) => {
     if (manager) {
+      // const arr = Tool.canvas.getObjects().filter((v) => v.width);
+      if (tool !== "BUCKET") {
+        if (Tool.ToolStoreList.length < 10) {
+          Tool.ToolStoreList.push(options.currentTarget);
+        } else {
+          Tool.ToolStoreList.shift();
+          Tool.ToolStoreList.push(options.currentTarget);
+        }
+      }
       manager.onMouseUp(options);
     }
   };
 
   const onSelected = (options) => {
-    if (manager) {
+    if (manager && tool === "SHAPE") {
       manager.onSelected(options);
     }
   };
@@ -309,9 +321,6 @@ export default (props: CanvasProps) => {
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
-      fabricCanvas.on("after:render", () => {
-        Tool.afterRender();
-      });
     }
   }, [
     fabricCanvas,
