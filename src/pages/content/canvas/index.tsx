@@ -198,14 +198,18 @@ export default (props: CanvasProps) => {
 
   const onMouseUp = (options) => {
     if (manager) {
-      // const arr = Tool.canvas.getObjects().filter((v) => v.width);
-      if (tool !== "BUCKET") {
-        if (Tool.ToolStoreList.length < 10) {
-          Tool.ToolStoreList.push(options.currentTarget);
-        } else {
-          Tool.ToolStoreList.shift();
-          Tool.ToolStoreList.push(options.currentTarget);
-        }
+      const ctx = Tool.canvas.getContext();
+      const imageData = ctx.getImageData(
+        0,
+        0,
+        ctx.canvas.width,
+        ctx.canvas.height
+      );
+      if (Tool.ToolStoreList.length < 10) {
+        Tool.ToolStoreList.push(imageData);
+      } else {
+        Tool.ToolStoreList.shift();
+        Tool.ToolStoreList.push(imageData);
       }
       manager.onMouseUp(options);
     }
@@ -318,6 +322,9 @@ export default (props: CanvasProps) => {
       fabricCanvas.on("mouse:wheel", onWheel);
       canvasBox.addEventListener("wheel", onCanvasBoxWheel, { passive: false });
 
+      fabricCanvas.on("after:render", () => {
+        Tool.afterRender();
+      });
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);

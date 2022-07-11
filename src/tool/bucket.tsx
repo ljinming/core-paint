@@ -148,15 +148,6 @@ class Bucket extends Tool {
     );
     if (colorLayer) {
       showCtx.putImageData(colorLayer, 0, 0);
-      //const curUrl = Tool.canvas.toDataURL();
-      Tool.lastCanvas.push(Tool.canvas);
-      if (Tool.ToolStoreList.length >= 10) {
-        Tool.ToolStoreList.shift();
-        Tool.ToolStoreList.push("bucket");
-      } else {
-        //  console.log("==4", url);
-        Tool.ToolStoreList.push("bucket");
-      }
       let canvasBucket = document.createElement("canvas");
       canvasBucket.width = colorLayer.width;
       canvasBucket.height = colorLayer.height;

@@ -51,11 +51,10 @@ export default class Tool {
 
   static recordTimer: any;
   static stateArr: any[] = [];
-  static stateIdx: any;
+  static stateIdx: any = 0;
   static transform: string;
   static currentScale: number;
   static ToolStoreList: any[] = [];
-  static lastCanvas: fabric.Canvas[] = [];
 
   static afterRender() {
     if (this.recordTimer) {
@@ -63,7 +62,7 @@ export default class Tool {
       this.recordTimer = null;
     }
     this.recordTimer = setTimeout(() => {
-      this.stateArr.push(JSON.stringify(Tool.canvas));
+      this.stateArr.push(JSON.stringify(this.canvas.toJSON()));
       this.stateIdx++;
     }, 1000);
   }
@@ -71,12 +70,13 @@ export default class Tool {
   // 撤销 或 还原
   static tapHistoryBtn(flag) {
     // let stateIdx = this.stateIdx + flag;
-    // console.log("===456", this.stateArr);
+    // //console.log("===456", this.stateArr, stateIdx);
     // // 判断是否已经到了第一步操作
     // if (stateIdx < 0) return;
     // // 判断是否已经到了最后一步操作
     // if (stateIdx >= this.stateArr.length) return;
     // if (this.stateArr[stateIdx]) {
+    //   // console.log("==234", this.stateArr[stateIdx]);
     //   this.canvas.loadFromJSON(this.stateArr[stateIdx], () => {});
     //   if (this.canvas.getObjects().length > 0) {
     //     this.canvas.getObjects().forEach((item) => {
@@ -86,32 +86,29 @@ export default class Tool {
     //   this.stateIdx = stateIdx;
     // }
 
-    // if (this.canvas) {
-    //   if (flag < 0 && this.ToolStoreList.length < 10) {
-    //     const tagCanvas = this.ToolStoreList.pop();
-    //     if (typeof tagCanvas === "string") {
-    //       // //油漆桶 base64
-    //       // Tool.canvas = Tool.lastCanvas.pop();
-    //       // Tool.canvas.renderAll();
-    //     } else {
-    //       this.canvasObj.push(tagCanvas);
-    //       this.canvas.remove(tagCanvas);
-    //     }
-    //   } else if (flag > 0 && this.canvasObj.length > 0) {
-    //     //回到撤回前一步
-    //     const current = this.canvasObj.pop();
-    //     if (current) {
-    //       this.canvas.add(current);
-    //     }
-    //   }
-    // }
     if (this.canvas) {
-      if (flag < 0 && this.canvasObj.length < 10) {
-        const removeList =
-          this.canvas.getObjects().filter((c) => c.width) || [];
-        const tagCanvas = removeList[removeList.length - 1];
-        this.canvasObj.push(tagCanvas);
-        this.canvas.remove(tagCanvas);
+      console.log("==d", this.ToolStoreList);
+      if (flag < 0 && this.ToolStoreList.length < 10) {
+        const tagCanvas = this.ToolStoreList.pop();
+        if (tagCanvas && this.canvas) {
+          console.log("===d", tagCanvas);
+
+          let canvasTool = document.createElement("canvas");
+          canvasTool.width = tagCanvas.width;
+          canvasTool.height = tagCanvas.height;
+          canvasTool.getContext("2d").putImageData(tagCanvas, 0, 0);
+          const url = canvasTool.toDataURL();
+          this.canvas.setBackgroundImage(
+            url,
+            (img) => {
+              img.selectable = false;
+              img.evented = false;
+              this.canvas.renderAll.bind(this.canvas);
+            },
+            { crossOrigin: "anonymous", scaleX: 0.5, scaleY: 0.5 }
+          );
+          //   canvasTool = null;
+        }
       } else if (flag > 0 && this.canvasObj.length > 0) {
         //回到撤回前一步
         const current = this.canvasObj.pop();
@@ -120,6 +117,22 @@ export default class Tool {
         }
       }
     }
+
+    // if (this.canvas) {
+    //   if (flag < 0 && this.canvasObj.length < 10) {
+    //     const removeList =
+    //       this.canvas.getObjects().filter((c) => c.width) || [];
+    //     const tagCanvas = removeList[removeList.length - 1];
+    //     this.canvasObj.push(tagCanvas);
+    //     this.canvas.remove(tagCanvas);
+    //   } else if (flag > 0 && this.canvasObj.length > 0) {
+    //     //回到撤回前一步
+    //     const current = this.canvasObj.pop();
+    //     if (current) {
+    //       this.canvas.add(current);
+    //     }
+    //   }
+    // }
   }
 
   //清空画布
