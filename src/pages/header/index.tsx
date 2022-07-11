@@ -1,6 +1,4 @@
 import { getToolIcon } from "../utils/tool";
-import board from "@/board";
-import Board from "@/board";
 import { Tool } from "@/tool";
 
 interface HeaderProps {
