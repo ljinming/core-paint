@@ -2,12 +2,15 @@ import Header from "./header";
 import Content from "./content";
 import "./index.less";
 import "./font.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useImperativeHandle } from "react";
+import { Tool } from "../tool";
 interface HomeProps {
   backgroundColor?: string;
   width?: number;
   height?: number;
   imgSrc?: string;
+  cRef?: any;
+  id: string;
 }
 
 function getImageSize(url: string): Promise<{
@@ -37,6 +40,8 @@ export default (props: HomeProps) => {
     imgSrc = "https://bafybeicgvg3vwtv5c633cjexbykjp75yjt755qhma4o7vgusa4ldvocz44.ipfs.dweb.link/orign.png",
     width,
     height,
+    cRef,
+    id,
   } = props;
   const [size, setSize] = useState({ width, height });
 
@@ -44,6 +49,14 @@ export default (props: HomeProps) => {
     const size = await getImageSize(src);
     setSize(size);
   };
+
+  useImperativeHandle(cRef, () => ({
+    getCurrentImageData: () => {
+      // const canvasElem: any = document.getElementById(`ccc-paint-canvas ${id}`);
+      // const imageData = canvasElem.toDataURL("image/png");
+      return Tool.canvas.toDataURL();
+    },
+  }));
 
   useEffect(() => {
     if (imgSrc) {

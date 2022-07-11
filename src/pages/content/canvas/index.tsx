@@ -98,6 +98,7 @@ export default (props: CanvasProps) => {
       canvas.freeDrawingCursor = `url(${cursorPen}) 12 16,auto`;
       setManage(new Pen());
       if (imgSrc) {
+        Tool.imgSrc = imgSrc;
         fabric.Image.fromURL(
           imgSrc,
           (img) => {
@@ -322,9 +323,6 @@ export default (props: CanvasProps) => {
       fabricCanvas.on("mouse:wheel", onWheel);
       canvasBox.addEventListener("wheel", onCanvasBoxWheel, { passive: false });
 
-      fabricCanvas.on("after:render", () => {
-        Tool.afterRender();
-      });
       // 监听绘画选中/取消⌚️
       fabricCanvas.on("selection:created", onSelected);
       fabricCanvas.on("selection:cleared", onCancelSelected);
